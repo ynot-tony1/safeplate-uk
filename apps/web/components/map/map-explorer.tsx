@@ -115,7 +115,9 @@ export function MapExplorer({
           // isValidBoundingBox) — not a failure, just needs a smaller area.
           setMarkers([]);
           setTruncated(false);
-          setError("Zoom in further to load establishments — the current area is too large to query.");
+          setError(
+            "Zoom in further to load establishments — the current area is too large to query.",
+          );
           setPage(0);
           return;
         }
@@ -209,8 +211,12 @@ export function MapExplorer({
 
       {truncated && (
         <p className="flex items-center gap-2 rounded-md border border-[var(--chart-warning)]/40 bg-[var(--chart-warning)]/10 p-3 text-sm">
-          <AlertTriangle className="size-4 shrink-0 text-[var(--chart-warning)]" aria-hidden="true" />
-          Showing the first {markers.length} results in this area. Zoom in to see all establishments.
+          <AlertTriangle
+            className="size-4 shrink-0 text-[var(--chart-warning)]"
+            aria-hidden="true"
+          />
+          Showing the first {markers.length} results in this area. Zoom in to see all
+          establishments.
         </p>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -227,7 +233,11 @@ export function MapExplorer({
             <BoundsWatcher onChange={setBounds} />
             <MarkerClusterGroup chunkedLoading>
               {markers.map((m) => (
-                <Marker key={m.fhrsId} position={[m.latitude, m.longitude]} icon={ratingMarkerIcon(m.ratingKey)}>
+                <Marker
+                  key={m.fhrsId}
+                  position={[m.latitude, m.longitude]}
+                  icon={ratingMarkerIcon(m.ratingKey)}
+                >
                   <Popup>
                     <div className="space-y-1">
                       <p className="font-medium">{m.businessName}</p>
@@ -244,7 +254,10 @@ export function MapExplorer({
           </MapContainer>
         </div>
 
-        <section aria-label="Establishments in view (accessible text alternative to the map)" className="space-y-3">
+        <section
+          aria-label="Establishments in view (accessible text alternative to the map)"
+          className="space-y-3"
+        >
           <h2 className="text-sm font-semibold">Establishments in view ({markers.length})</h2>
           {pageItems.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -254,7 +267,10 @@ export function MapExplorer({
             <ul className="max-h-[460px] space-y-2 overflow-y-auto">
               {pageItems.map((m) => (
                 <li key={m.fhrsId} className="rounded-md border bg-card p-3 text-sm">
-                  <Link href={`/establishments/${m.fhrsId}`} className="font-medium hover:underline">
+                  <Link
+                    href={`/establishments/${m.fhrsId}`}
+                    className="font-medium hover:underline"
+                  >
                     {m.businessName}
                   </Link>
                   <p className="mt-0.5 text-xs text-muted-foreground">

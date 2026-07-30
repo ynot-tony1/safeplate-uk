@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building2, CalendarClock, ClipboardCheck, Hourglass, MapPinned, ShieldCheck, ShieldX } from "lucide-react";
+import {
+  Building2,
+  CalendarClock,
+  ClipboardCheck,
+  Hourglass,
+  MapPinned,
+  ShieldCheck,
+  ShieldX,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { StatTile } from "@/components/stat-tile";
 import { RatingDistributionChart } from "@/components/charts/rating-distribution-chart";
@@ -28,8 +36,8 @@ export default async function DashboardPage() {
           <Hourglass className="size-4" />
           <AlertTitle>No data yet</AlertTitle>
           <AlertDescription>
-            No daily metrics have been computed yet — this happens once the nightly ingestion pipeline
-            has run at least once. Check the{" "}
+            No daily metrics have been computed yet — this happens once the nightly ingestion
+            pipeline has run at least once. Check the{" "}
             <Link className="underline" href="/status">
               status page
             </Link>{" "}
@@ -46,11 +54,16 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Metrics computed {formatDate(data.metricDate)}
-          {data.sourceExtractDate && <> · source extract dated {formatDate(data.sourceExtractDate)}</>}
+          {data.sourceExtractDate && (
+            <> · source extract dated {formatDate(data.sourceExtractDate)}</>
+          )}
         </p>
       </div>
 
-      <section aria-label="Key metrics" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <section
+        aria-label="Key metrics"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+      >
         <StatTile
           label="Indexed establishments"
           value={formatNumber(data.totalEstablishments)}
@@ -75,7 +88,9 @@ export default async function DashboardPage() {
         />
         <StatTile
           label="Latest successful ingestion"
-          value={data.latestSuccessfulRun ? formatDateTime(data.latestSuccessfulRun.completedAt) : "—"}
+          value={
+            data.latestSuccessfulRun ? formatDateTime(data.latestSuccessfulRun.completedAt) : "—"
+          }
           icon={CalendarClock}
         />
         <StatTile
@@ -104,7 +119,10 @@ export default async function DashboardPage() {
         <LabeledBarChart
           title="Least recently inspected"
           description="Top 10 local authorities by average days since last inspection"
-          data={data.leastRecentlyInspectedAuthorities.map((a) => ({ label: a.name, value: a.avgDays }))}
+          data={data.leastRecentlyInspectedAuthorities.map((a) => ({
+            label: a.name,
+            value: a.avgDays,
+          }))}
           valueFormat="days"
           color="var(--chart-cat-6)"
         />

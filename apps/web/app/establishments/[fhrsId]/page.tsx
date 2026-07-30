@@ -4,7 +4,14 @@ import { notFound } from "next/navigation";
 import { AlertCircle, MapPin } from "lucide-react";
 import { RatingBadge } from "@/components/rating-badge";
 import { SingleMarkerMapDynamic } from "@/components/map/single-marker-map-dynamic";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getEstablishmentByFhrsId, getRatingChangeHistory } from "@/lib/data/establishments";
 import { formatDate } from "@/lib/format";
 
@@ -12,8 +19,7 @@ export const dynamic = "force-dynamic";
 
 const TILE_URL =
   process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const ATTRIBUTION =
-  process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? "&copy; OpenStreetMap contributors";
+const ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? "&copy; OpenStreetMap contributors";
 
 export async function generateMetadata({
   params,
@@ -97,7 +103,10 @@ export default async function EstablishmentDetailPage({
                 </h3>
                 <ScoreRow label="Hygiene" value={establishment.hygieneScore} />
                 <ScoreRow label="Structural" value={establishment.structuralScore} />
-                <ScoreRow label="Confidence in management" value={establishment.confidenceManagementScore} />
+                <ScoreRow
+                  label="Confidence in management"
+                  value={establishment.confidenceManagementScore}
+                />
               </div>
             )}
           </section>
@@ -178,13 +187,23 @@ export default async function EstablishmentDetailPage({
         <aside className="space-y-4">
           <div className="rounded-lg border bg-card p-4 text-sm">
             <div className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <AlertCircle
+                className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
               <p className="text-muted-foreground">
                 As recorded in the source extract dated{" "}
-                <strong className="text-foreground">{formatDate(establishment.sourceExtractDate)}</strong>{" "}
+                <strong className="text-foreground">
+                  {formatDate(establishment.sourceExtractDate)}
+                </strong>{" "}
                 — may not reflect the current rating. Ratings are updated by local authorities and
                 re-synced by our nightly ingestion; check{" "}
-                <Link href={`https://ratings.food.gov.uk/`} className="underline" target="_blank" rel="noreferrer noopener">
+                <Link
+                  href={`https://ratings.food.gov.uk/`}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
                   the FSA&apos;s own site
                 </Link>{" "}
                 for the most current information.

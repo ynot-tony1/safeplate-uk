@@ -49,8 +49,17 @@ export function LabeledBarChart({
             layout="vertical"
             margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-gridline)" horizontal={false} />
-            <XAxis type="number" tick={CHART_AXIS_TICK} stroke="var(--chart-baseline)" allowDecimals={false} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="var(--chart-gridline)"
+              horizontal={false}
+            />
+            <XAxis
+              type="number"
+              tick={CHART_AXIS_TICK}
+              stroke="var(--chart-baseline)"
+              allowDecimals={false}
+            />
             <YAxis
               type="category"
               dataKey="label"

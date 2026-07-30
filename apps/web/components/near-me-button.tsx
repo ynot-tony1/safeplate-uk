@@ -58,7 +58,13 @@ export function NearMeButton({
         className="h-9 w-16 rounded-md border border-input bg-transparent px-2 text-sm shadow-xs"
         aria-label="Search radius in kilometres"
       />
-      <Button type="button" variant="outline" size="sm" onClick={handleClick} disabled={status === "locating"}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleClick}
+        disabled={status === "locating"}
+      >
         <LocateFixed className="size-4" aria-hidden="true" />
         {status === "locating" ? "Locating…" : "Near me"}
       </Button>

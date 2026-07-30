@@ -22,7 +22,10 @@ export function EstablishmentList({ items }: { items: EstablishmentWithDistance[
   return (
     <ul className="divide-y rounded-lg border bg-card" aria-label="Search results">
       {items.map((e) => (
-        <li key={e.fhrsId} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
+        <li
+          key={e.fhrsId}
+          className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between"
+        >
           <div className="min-w-0">
             <Link href={`/establishments/${e.fhrsId}`} className="font-medium hover:underline">
               {e.businessName}
@@ -39,10 +42,14 @@ export function EstablishmentList({ items }: { items: EstablishmentWithDistance[
           <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
             <RatingBadge ratingKey={e.ratingKey} />
             {e.ratingDate && (
-              <span className="text-xs text-muted-foreground">Rated {formatDate(e.ratingDate)}</span>
+              <span className="text-xs text-muted-foreground">
+                Rated {formatDate(e.ratingDate)}
+              </span>
             )}
             {e.newRatingPending && (
-              <span className="text-xs font-medium text-[var(--chart-warning)]">New rating pending</span>
+              <span className="text-xs font-medium text-[var(--chart-warning)]">
+                New rating pending
+              </span>
             )}
           </div>
         </li>

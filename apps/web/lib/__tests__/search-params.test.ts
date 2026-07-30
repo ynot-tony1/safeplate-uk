@@ -74,7 +74,11 @@ describe("establishmentSearchParamsSchema (search filter validation)", () => {
   });
 
   it("rejects a radius over the 100km cap", () => {
-    const result = establishmentSearchParamsSchema.safeParse({ lat: "51.5", lon: "-0.1", radiusKm: "150" });
+    const result = establishmentSearchParamsSchema.safeParse({
+      lat: "51.5",
+      lon: "-0.1",
+      radiusKm: "150",
+    });
     expect(result.success).toBe(false);
   });
 });

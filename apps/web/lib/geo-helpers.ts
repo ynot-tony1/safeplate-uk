@@ -23,7 +23,8 @@ export function computeBoundingBoxForRadius(
 ): DegreeBoundingBox {
   const latDelta = radiusKm / KM_PER_DEGREE_LAT;
   const cosLat = Math.cos((lat * Math.PI) / 180);
-  const lonDelta = radiusKm / (KM_PER_DEGREE_LAT * (Math.abs(cosLat) > MIN_COS_LAT ? cosLat : MIN_COS_LAT));
+  const lonDelta =
+    radiusKm / (KM_PER_DEGREE_LAT * (Math.abs(cosLat) > MIN_COS_LAT ? cosLat : MIN_COS_LAT));
 
   return {
     minLat: lat - latDelta,

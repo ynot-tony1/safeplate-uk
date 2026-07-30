@@ -24,9 +24,6 @@ export async function GET() {
     await withTimeout(prisma.$queryRaw`SELECT 1`, HEALTH_CHECK_TIMEOUT_MS);
     return NextResponse.json({ status: "ok", database: "ok", timestamp });
   } catch {
-    return NextResponse.json(
-      { status: "degraded", database: "error", timestamp },
-      { status: 503 },
-    );
+    return NextResponse.json({ status: "degraded", database: "error", timestamp }, { status: 503 });
   }
 }

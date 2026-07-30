@@ -29,7 +29,12 @@ export function EstablishmentSearchForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="postcode">Postcode</Label>
-          <Input id="postcode" name="postcode" defaultValue={defaults.postcode} placeholder="e.g. SW1A 1AA" />
+          <Input
+            id="postcode"
+            name="postcode"
+            defaultValue={defaults.postcode}
+            placeholder="e.g. SW1A 1AA"
+          />
         </div>
 
         <div className="space-y-1.5">
@@ -68,7 +73,12 @@ export function EstablishmentSearchForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="rating">Rating</Label>
-          <select id="rating" name="rating" defaultValue={defaults.rating ?? ""} className={nativeSelectClass}>
+          <select
+            id="rating"
+            name="rating"
+            defaultValue={defaults.rating ?? ""}
+            className={nativeSelectClass}
+          >
             <option value="">Any rating</option>
             {RATING_KEYS.map((key) => (
               <option key={key} value={key}>
@@ -80,7 +90,12 @@ export function EstablishmentSearchForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="scheme">Scheme</Label>
-          <select id="scheme" name="scheme" defaultValue={defaults.scheme ?? ""} className={nativeSelectClass}>
+          <select
+            id="scheme"
+            name="scheme"
+            defaultValue={defaults.scheme ?? ""}
+            className={nativeSelectClass}
+          >
             <option value="">FHRS &amp; FHIS</option>
             {SCHEME_TYPES.map((s) => (
               <option key={s} value={s}>
@@ -102,13 +117,23 @@ export function EstablishmentSearchForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="ratingDateTo">Rating date to</Label>
-          <Input id="ratingDateTo" name="ratingDateTo" type="date" defaultValue={defaults.ratingDateTo} />
+          <Input
+            id="ratingDateTo"
+            name="ratingDateTo"
+            type="date"
+            defaultValue={defaults.ratingDateTo}
+          />
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="sort">Sort by</Label>
           <div className="flex gap-2">
-            <select id="sort" name="sort" defaultValue={defaults.sort ?? "business_name"} className={nativeSelectClass}>
+            <select
+              id="sort"
+              name="sort"
+              defaultValue={defaults.sort ?? "business_name"}
+              className={nativeSelectClass}
+            >
               <option value="business_name">Business name</option>
               <option value="rating">Rating</option>
               <option value="rating_date">Rating date</option>
@@ -138,7 +163,11 @@ export function EstablishmentSearchForm({
           New rating pending only
         </label>
 
-        <NearMeButton defaultLat={defaults.lat} defaultLon={defaults.lon} defaultRadius={defaults.radiusKm} />
+        <NearMeButton
+          defaultLat={defaults.lat}
+          defaultLon={defaults.lon}
+          defaultRadius={defaults.radiusKm}
+        />
 
         <div className="ml-auto flex gap-2">
           <Button type="submit">Search</Button>

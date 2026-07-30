@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildKeysetWhere,
-  buildNullBucketWhere,
-  decodeCursor,
-  encodeCursor,
-} from "../pagination";
+import { buildKeysetWhere, buildNullBucketWhere, decodeCursor, encodeCursor } from "../pagination";
 
 describe("cursor encode/decode", () => {
   it("round-trips a cursor with a non-null sort value", () => {

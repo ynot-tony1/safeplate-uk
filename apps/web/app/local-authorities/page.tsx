@@ -35,7 +35,9 @@ export default async function LocalAuthoritiesPage() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h2 className="font-semibold">{la.name}</h2>
-                  {la.regionName && <p className="text-xs text-muted-foreground">{la.regionName}</p>}
+                  {la.regionName && (
+                    <p className="text-xs text-muted-foreground">{la.regionName}</p>
+                  )}
                 </div>
                 <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
                   {la.schemeType}
@@ -47,7 +49,9 @@ export default async function LocalAuthoritiesPage() {
                   <dt className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Building2 className="size-3" aria-hidden="true" /> Establishments
                   </dt>
-                  <dd className="font-medium tabular-nums">{formatNumber(la.totalEstablishments)}</dd>
+                  <dd className="font-medium tabular-nums">
+                    {formatNumber(la.totalEstablishments)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Rated 0–2</dt>
@@ -63,11 +67,15 @@ export default async function LocalAuthoritiesPage() {
                   <dt className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Hourglass className="size-3" aria-hidden="true" /> New rating pending
                   </dt>
-                  <dd className="font-medium tabular-nums">{formatNumber(la.newRatingPendingCount)}</dd>
+                  <dd className="font-medium tabular-nums">
+                    {formatNumber(la.newRatingPendingCount)}
+                  </dd>
                 </div>
                 <div className="col-span-2">
                   <dt className="text-xs text-muted-foreground">Avg. time since inspection</dt>
-                  <dd className="font-medium tabular-nums">{formatDays(la.avgDaysSinceInspection)}</dd>
+                  <dd className="font-medium tabular-nums">
+                    {formatDays(la.avgDaysSinceInspection)}
+                  </dd>
                 </div>
               </dl>
 

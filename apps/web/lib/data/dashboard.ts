@@ -3,7 +3,11 @@ import { prisma } from "@safeplate/database";
 import type { IngestionRun } from "@safeplate/database";
 import { RATING_KEYS } from "@safeplate/shared";
 import { ratingLabel } from "../rating-labels";
-import { asNumberRecord, getLatestGlobalMetric, getLatestPerAuthorityMetrics } from "./daily-metrics";
+import {
+  asNumberRecord,
+  getLatestGlobalMetric,
+  getLatestPerAuthorityMetrics,
+} from "./daily-metrics";
 
 export interface RatingDatum {
   key: string;
@@ -115,7 +119,8 @@ export async function getDashboardData(): Promise<DashboardData> {
       code: metric.localAuthorityCode as string,
       name: authority?.name ?? (metric.localAuthorityCode as string),
       total: metric.totalEstablishments,
-      proportion: metric.totalEstablishments > 0 ? metric.rated0to2Count / metric.totalEstablishments : 0,
+      proportion:
+        metric.totalEstablishments > 0 ? metric.rated0to2Count / metric.totalEstablishments : 0,
     }))
     .filter((a) => a.total > 0)
     .sort((a, b) => b.proportion - a.proportion)

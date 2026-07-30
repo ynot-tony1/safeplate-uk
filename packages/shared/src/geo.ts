@@ -37,7 +37,10 @@ export function isValidBoundingBox(box: BoundingBox): boolean {
 }
 
 /** Haversine distance in kilometres, used for distance-sort of search results. */
-export function distanceKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
+export function distanceKm(
+  a: { lat: number; lon: number },
+  b: { lat: number; lon: number },
+): number {
   const R = 6371;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
   const dLon = ((b.lon - a.lon) * Math.PI) / 180;

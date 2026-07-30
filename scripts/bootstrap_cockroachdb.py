@@ -74,7 +74,7 @@ def redact(url: str) -> str:
     return f"{parsed.scheme}://{parsed.username}:***@{parsed.hostname}:{parsed.port}{parsed.path}"
 
 
-def push_to_github_secret(name: str, value: str) -> None:
+def push_to_github_secret(name: str, value: str) -> bool:
     try:
         result = subprocess.run(
             ["gh", "secret", "set", name],
@@ -85,11 +85,12 @@ def push_to_github_secret(name: str, value: str) -> None:
         )
     except FileNotFoundError:
         print(f"  gh CLI not found — skipped setting {name}. Set it manually.")
-        return
+        return False
     if result.returncode != 0:
         print(f"  WARNING: failed to set GitHub secret {name}: {result.stderr.strip()}")
-    else:
-        print(f"  GitHub secret {name} set.")
+        return False
+    print(f"  GitHub secret {name} set.")
+    return True
 
 
 def main() -> None:
@@ -188,14 +189,25 @@ def main() -> None:
             "the schema — re-verify SELECT/INSERT/UPDATE after migrations run."
         )
 
-    print("\nPushing secrets...")
-    push_to_github_secret("INGEST_DATABASE_URL", urls["food_ingestor"])
-    push_to_github_secret("MIGRATION_DATABASE_URL", urls["food_migrator"])
-
+    # Write local fallback files FIRST, before attempting any network push —
+    # so a failed `gh secret set` (e.g. no remote yet) never loses a
+    # generated password permanently. Each file is deleted once the value
+    # has been successfully delivered to its real destination.
     SECRETS_DIR.mkdir(exist_ok=True)
-    app_secret_path = SECRETS_DIR / "database_url_for_vercel.txt"
-    app_secret_path.write_text(urls["food_app"])
-    os.chmod(app_secret_path, 0o600)
+    fallback_paths = {}
+    for role, url in urls.items():
+        path = SECRETS_DIR / f"{role}_url.txt"
+        path.write_text(url)
+        os.chmod(path, 0o600)
+        fallback_paths[role] = path
+
+    print("\nPushing secrets...")
+    if push_to_github_secret("INGEST_DATABASE_URL", urls["food_ingestor"]):
+        fallback_paths["food_ingestor"].unlink()
+    if push_to_github_secret("MIGRATION_DATABASE_URL", urls["food_migrator"]):
+        fallback_paths["food_migrator"].unlink()
+
+    app_secret_path = fallback_paths["food_app"]
     print(
         f"\nDATABASE_URL for the food_app role written to {app_secret_path} (0600, gitignored).\n"
         "Use it with `vercel env add DATABASE_URL production` during Vercel linking, "

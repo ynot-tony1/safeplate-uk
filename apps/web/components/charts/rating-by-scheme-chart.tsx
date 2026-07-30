@@ -1,6 +1,15 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { RatingByScheme } from "@/lib/data/dashboard";
 import { ChartShell, CHART_AXIS_TICK, CHART_TOOLTIP_STYLE } from "./chart-shell";
 
@@ -40,7 +49,10 @@ export function RatingBySchemeChart({ data }: { data: RatingByScheme[] }) {
               height={70}
             />
             <YAxis tick={CHART_AXIS_TICK} stroke="var(--chart-baseline)" allowDecimals={false} />
-            <Tooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={{ fill: "var(--chart-gridline)" }} />
+            <Tooltip
+              contentStyle={CHART_TOOLTIP_STYLE}
+              cursor={{ fill: "var(--chart-gridline)" }}
+            />
             <Legend wrapperStyle={{ fontSize: 12, color: "var(--chart-ink-secondary)" }} />
             {schemesPresent.includes("FHRS") && (
               <Bar dataKey="FHRS" fill={SCHEME_COLOR.FHRS} radius={[4, 4, 0, 0]} maxBarSize={28} />

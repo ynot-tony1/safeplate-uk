@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { AlertOctagon, CheckCircle2, CircleDashed, XCircle } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getRecentIngestionRuns } from "@/lib/data/ingestion";
 import { formatDateTime, formatNumber } from "@/lib/format";
 import packageJson from "../../package.json";
@@ -42,8 +49,8 @@ export default async function StatusPage() {
       <div>
         <h1 className="text-2xl font-semibold">Status</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Ingestion pipeline health only. This page never displays connection strings, credentials, or
-          other infrastructure detail.
+          Ingestion pipeline health only. This page never displays connection strings, credentials,
+          or other infrastructure detail.
         </p>
       </div>
 
@@ -100,9 +107,15 @@ export default async function StatusPage() {
                       <TableCell>{formatDateTime(run.startedAt)}</TableCell>
                       <TableCell>{formatDateTime(run.completedAt)}</TableCell>
                       <TableCell className="tabular-nums">{formatNumber(run.rowsSeen)}</TableCell>
-                      <TableCell className="tabular-nums">{formatNumber(run.rowsInserted)}</TableCell>
-                      <TableCell className="tabular-nums">{formatNumber(run.rowsUpdated)}</TableCell>
-                      <TableCell className="tabular-nums">{formatNumber(run.rowsRejected)}</TableCell>
+                      <TableCell className="tabular-nums">
+                        {formatNumber(run.rowsInserted)}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {formatNumber(run.rowsUpdated)}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {formatNumber(run.rowsRejected)}
+                      </TableCell>
                       <TableCell className="tabular-nums">
                         {formatNumber(run.ratingChangesCreated)}
                       </TableCell>

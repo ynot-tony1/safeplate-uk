@@ -81,4 +81,5 @@ jobs:
 
       - name: Skipped notice
         if: steps.gate.outputs.enabled != 'true'
-        run: echo "## Ingestion skipped: INGESTION_ENABLED is not 'true'" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "## Ingestion skipped: INGESTION_ENABLED is not 'true'" >> "$GITHUB_STEP_SUMMARY"

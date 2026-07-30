@@ -31,15 +31,75 @@ interface CityDef {
 }
 
 const CITIES: CityDef[] = [
-  { code: "FIX-LON", name: "Fixture Borough of London", regionName: "London", scheme: "FHRS", lat: 51.5074, lon: -0.1278, postcodeArea: "SW1A" },
-  { code: "FIX-MAN", name: "Fixture City of Manchester", regionName: "North West", scheme: "FHRS", lat: 53.4808, lon: -2.2426, postcodeArea: "M1" },
-  { code: "FIX-BIR", name: "Fixture City of Birmingham", regionName: "West Midlands", scheme: "FHRS", lat: 52.4862, lon: -1.8904, postcodeArea: "B1" },
-  { code: "FIX-EDI", name: "Fixture City of Edinburgh", regionName: "Scotland", scheme: "FHIS", lat: 55.9533, lon: -3.1883, postcodeArea: "EH1" },
-  { code: "FIX-BRI", name: "Fixture City of Bristol", regionName: "South West", scheme: "FHRS", lat: 51.4545, lon: -2.5879, postcodeArea: "BS1" },
+  {
+    code: "FIX-LON",
+    name: "Fixture Borough of London",
+    regionName: "London",
+    scheme: "FHRS",
+    lat: 51.5074,
+    lon: -0.1278,
+    postcodeArea: "SW1A",
+  },
+  {
+    code: "FIX-MAN",
+    name: "Fixture City of Manchester",
+    regionName: "North West",
+    scheme: "FHRS",
+    lat: 53.4808,
+    lon: -2.2426,
+    postcodeArea: "M1",
+  },
+  {
+    code: "FIX-BIR",
+    name: "Fixture City of Birmingham",
+    regionName: "West Midlands",
+    scheme: "FHRS",
+    lat: 52.4862,
+    lon: -1.8904,
+    postcodeArea: "B1",
+  },
+  {
+    code: "FIX-EDI",
+    name: "Fixture City of Edinburgh",
+    regionName: "Scotland",
+    scheme: "FHIS",
+    lat: 55.9533,
+    lon: -3.1883,
+    postcodeArea: "EH1",
+  },
+  {
+    code: "FIX-BRI",
+    name: "Fixture City of Bristol",
+    regionName: "South West",
+    scheme: "FHRS",
+    lat: 51.4545,
+    lon: -2.5879,
+    postcodeArea: "BS1",
+  },
 ];
 
-const FHRS_RATING_KEYS = ["5", "5", "5", "4", "4", "4", "3", "3", "2", "1", "0", "awaiting_inspection"] as const;
-const FHIS_RATING_KEYS = ["pass", "pass", "pass", "pass", "improvement_required", "awaiting_inspection"] as const;
+const FHRS_RATING_KEYS = [
+  "5",
+  "5",
+  "5",
+  "4",
+  "4",
+  "4",
+  "3",
+  "3",
+  "2",
+  "1",
+  "0",
+  "awaiting_inspection",
+] as const;
+const FHIS_RATING_KEYS = [
+  "pass",
+  "pass",
+  "pass",
+  "pass",
+  "improvement_required",
+  "awaiting_inspection",
+] as const;
 
 const RATING_KEY_TO_RAW_VALUE: Record<string, string> = {
   pass: "Pass",
@@ -150,19 +210,27 @@ async function main() {
       const businessName = `${nameStem} ${city.name.split(" ").pop()}`;
       const ratingKey = city.scheme === "FHIS" ? pick(FHIS_RATING_KEYS) : pick(FHRS_RATING_KEYS);
       const hasScoredRating = city.scheme === "FHRS" && /^[0-5]$/.test(ratingKey);
-      const ratingDate = ratingKey === "awaiting_inspection" ? null : daysAgo(Math.floor(randomBetween(10, 720)));
+      const ratingDate =
+        ratingKey === "awaiting_inspection" ? null : daysAgo(Math.floor(randomBetween(10, 720)));
 
       establishments.push({
         fhrsId,
         businessName,
-        normalisedName: businessName.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim(),
+        normalisedName: businessName
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim(),
         businessTypeId: businessType.id,
         businessTypeName: businessType.description,
         postcode: `${city.postcodeArea} ${Math.floor(randomBetween(1, 9))}${["AA", "BB", "XY", "ZZ"][counter % 4]}`,
         postcodePrefix: city.postcodeArea,
         localAuthorityCode: city.code,
         localAuthorityName: city.name,
-        ratingValue: ratingKey === "awaiting_inspection" ? null : (RATING_KEY_TO_RAW_VALUE[ratingKey] ?? ratingKey),
+        ratingValue:
+          ratingKey === "awaiting_inspection"
+            ? null
+            : (RATING_KEY_TO_RAW_VALUE[ratingKey] ?? ratingKey),
         ratingKey,
         ratingDate,
         schemeType: city.scheme,
@@ -240,7 +308,8 @@ async function main() {
       completedAt: daysAgo(1),
       workflowRunId: "local-fixture-seed-failed",
       gitSha: "0000000",
-      errorSummary: "Fixture example: simulated timeout downloading one local authority's XML extract.",
+      errorSummary:
+        "Fixture example: simulated timeout downloading one local authority's XML extract.",
     },
   });
 
@@ -273,17 +342,23 @@ async function main() {
     const withDates = rows.filter((r) => r.ratingDate);
     if (withDates.length === 0) return null;
     const now = Date.now();
-    const total = withDates.reduce((sum, r) => sum + (now - (r.ratingDate as Date).getTime()) / 86_400_000, 0);
+    const total = withDates.reduce(
+      (sum, r) => sum + (now - (r.ratingDate as Date).getTime()) / 86_400_000,
+      0,
+    );
     return total / withDates.length;
   }
   function rated0to2Count(rows: EstablishmentSeed[]): number {
-    return rows.filter((r) => r.ratingKey === "0" || r.ratingKey === "1" || r.ratingKey === "2").length;
+    return rows.filter((r) => r.ratingKey === "0" || r.ratingKey === "1" || r.ratingKey === "2")
+      .length;
   }
   function rated5Count(rows: EstablishmentSeed[]): number {
     return rows.filter((r) => r.ratingKey === "5").length;
   }
   function awaitingCount(rows: EstablishmentSeed[]): number {
-    return rows.filter((r) => r.ratingKey === "awaiting_inspection" || r.ratingKey === "awaiting_publication").length;
+    return rows.filter(
+      (r) => r.ratingKey === "awaiting_inspection" || r.ratingKey === "awaiting_publication",
+    ).length;
   }
 
   await prisma.dailyMetric.create({
@@ -327,7 +402,9 @@ async function main() {
     });
   }
 
-  console.log(`Seeded ${establishments.length} establishments across ${CITIES.length} local authorities.`);
+  console.log(
+    `Seeded ${establishments.length} establishments across ${CITIES.length} local authorities.`,
+  );
 }
 
 main()

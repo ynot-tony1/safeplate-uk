@@ -1,6 +1,14 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { MonthlyCount } from "@/lib/data/dashboard";
 import { ChartShell, CHART_AXIS_TICK, CHART_TOOLTIP_STYLE } from "./chart-shell";
 
@@ -17,7 +25,10 @@ export function InspectionsByMonthChart({ data }: { data: MonthlyCount[] }) {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-gridline)" vertical={false} />
             <XAxis dataKey="month" tick={CHART_AXIS_TICK} stroke="var(--chart-baseline)" />
             <YAxis tick={CHART_AXIS_TICK} stroke="var(--chart-baseline)" allowDecimals={false} />
-            <Tooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={{ stroke: "var(--chart-gridline)" }} />
+            <Tooltip
+              contentStyle={CHART_TOOLTIP_STYLE}
+              cursor={{ stroke: "var(--chart-gridline)" }}
+            />
             <Line
               type="monotone"
               dataKey="count"

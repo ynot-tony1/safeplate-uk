@@ -51,7 +51,10 @@ export function RatingDistributionChart({ data }: { data: RatingDatum[] }) {
               height={70}
             />
             <YAxis tick={CHART_AXIS_TICK} stroke="var(--chart-baseline)" allowDecimals={false} />
-            <Tooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={{ fill: "var(--chart-gridline)" }} />
+            <Tooltip
+              contentStyle={CHART_TOOLTIP_STYLE}
+              cursor={{ fill: "var(--chart-gridline)" }}
+            />
             <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Establishments" maxBarSize={48}>
               {data.map((entry) => (
                 <Cell key={entry.key} fill={SEVERITY_COLOR[ratingSeverity(entry.key)]} />
@@ -61,7 +64,10 @@ export function RatingDistributionChart({ data }: { data: RatingDatum[] }) {
         </ResponsiveContainer>
       </div>
       {data.length > 0 && (
-        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground" aria-label="Legend">
+        <ul
+          className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"
+          aria-label="Legend"
+        >
           {usedSeverities.map((severity) => (
             <li key={severity} className="flex items-center gap-1.5">
               <span

@@ -118,7 +118,12 @@ async function fetchKeysetPage(
     // Prisma compares DateTime fields against Date instances, not strings.
     const keysetWhere =
       cursor && cursor.v !== null
-        ? buildKeysetWhereTyped(column, direction, coerceCursorValueForColumn(column, cursor.v), cursor.id)
+        ? buildKeysetWhereTyped(
+            column,
+            direction,
+            coerceCursorValueForColumn(column, cursor.v),
+            cursor.id,
+          )
         : undefined;
 
     rows = await prisma.establishment.findMany({
@@ -171,10 +176,7 @@ function buildKeysetWhereTyped(
 ): Prisma.EstablishmentWhereInput {
   const cmp = direction === "asc" ? "gt" : "lt";
   return {
-    OR: [
-      { [column]: { [cmp]: value } },
-      { AND: [{ [column]: value }, { fhrsId: { [cmp]: id } }] },
-    ],
+    OR: [{ [column]: { [cmp]: value } }, { AND: [{ [column]: value }, { fhrsId: { [cmp]: id } }] }],
   } as Prisma.EstablishmentWhereInput;
 }
 
@@ -211,7 +213,10 @@ async function fetchDistancePage(
     .filter((e) => isValidUkCoordinate(e.latitude, e.longitude))
     .map((e) => ({
       ...e,
-      distanceKm: distanceKm({ lat, lon }, { lat: e.latitude as number, lon: e.longitude as number }),
+      distanceKm: distanceKm(
+        { lat, lon },
+        { lat: e.latitude as number, lon: e.longitude as number },
+      ),
     }))
     .filter((e) => e.distanceKm !== null && e.distanceKm <= radiusKm)
     .sort((a, b) => {
@@ -238,7 +243,9 @@ async function fetchDistancePage(
   return { items: page, hasMore, nextCursor };
 }
 
-export async function searchEstablishments(params: EstablishmentSearchParams): Promise<SearchResult> {
+export async function searchEstablishments(
+  params: EstablishmentSearchParams,
+): Promise<SearchResult> {
   const baseWhere = buildBaseWhere(params);
   const cursor = params.cursor ? decodeCursor(params.cursor) : null;
 

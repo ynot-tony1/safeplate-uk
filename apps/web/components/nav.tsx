@@ -22,7 +22,11 @@ export function Nav() {
   return (
     <header className="border-b bg-background sticky top-0 z-40">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold" onClick={() => setOpen(false)}>
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-semibold"
+          onClick={() => setOpen(false)}
+        >
           <UtensilsCrossed className="size-5" aria-hidden="true" />
           <span>SafePlate UK</span>
         </Link>
@@ -54,7 +58,11 @@ export function Nav() {
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
+          {open ? (
+            <X className="size-5" aria-hidden="true" />
+          ) : (
+            <Menu className="size-5" aria-hidden="true" />
+          )}
         </button>
       </div>
 
