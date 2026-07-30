@@ -2,8 +2,11 @@ services:
   # Local CockroachDB single-node instance for development only.
   # Production uses CockroachDB Cloud (cluster: safe-hippo) — never
   # point this compose file at production credentials.
+  # Version pinned to match the production cluster so local migration
+  # testing reflects real behavior (e.g. schema_locked defaults differ
+  # across CockroachDB versions).
   cockroachdb:
-    image: cockroachdb/cockroach:v24.1.5
+    image: cockroachdb/cockroach:v26.2.0
     command: start-single-node --insecure
     ports:
       - "26257:26257"
