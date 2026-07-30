@@ -43,25 +43,6 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
-      - name: TEMP DEBUG drop stale bootstrap-probe artifact
-        working-directory: packages/database
-        env:
-          DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
-        run: |
-          cat > ./debug-drop-stale.mjs <<'EOF'
-          import { PrismaClient } from "./generated/client/index.js";
-          const prisma = new PrismaClient();
-          await prisma.$executeRawUnsafe("DROP TABLE IF EXISTS _permission_probe_app");
-          await prisma.$executeRawUnsafe("DROP TABLE IF EXISTS _permission_probe_ingestor");
-          const rows = await prisma.$queryRawUnsafe(
-            "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('crdb_internal','information_schema','pg_catalog','pg_extension')"
-          );
-          console.log(JSON.stringify(rows, null, 2));
-          await prisma.$disconnect();
-          EOF
-          node ./debug-drop-stale.mjs
-          rm -f ./debug-drop-stale.mjs
-
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
       # `migrate reset` or a destructive `db push` against production.

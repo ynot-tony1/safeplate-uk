@@ -161,23 +161,24 @@ def main() -> None:
     # migrations). What we CAN verify now is that only food_migrator has DDL
     # rights — that boundary doesn't depend on any table existing.
     print("\nVerifying each role's real permissions (pre-migration checks)...")
-    with psycopg.connect(urls["food_app"]) as c, c.cursor() as cur:
-        cur.execute("SELECT 1")
-        try:
-            cur.execute("CREATE TABLE _permission_probe_app (id INT)")
-            fail("food_app was able to run DDL — least-privilege grant is broken.")
-        except Exception:
-            c.rollback()
-            print("  food_app: SELECT works, DDL correctly denied.")
-
-    with psycopg.connect(urls["food_ingestor"]) as c, c.cursor() as cur:
-        cur.execute("SELECT 1")
-        try:
-            cur.execute("CREATE TABLE _permission_probe_ingestor (id INT)")
-            fail("food_ingestor was able to run DDL — least-privilege grant is broken.")
-        except Exception:
-            c.rollback()
-            print("  food_ingestor: connects fine, DDL correctly denied.")
+    for role, probe_table in (("food_app", "_permission_probe_app"), ("food_ingestor", "_permission_probe_ingestor")):
+        with psycopg.connect(urls[role]) as c, c.cursor() as cur:
+            cur.execute("SELECT 1")
+            created = False
+            try:
+                cur.execute(f"CREATE TABLE {probe_table} (id INT)")
+                created = True
+                fail(f"{role} was able to run DDL — least-privilege grant is broken.")
+            except Exception:
+                c.rollback()
+                print(f"  {role}: connects fine, DDL correctly denied.")
+            finally:
+                # If CREATE unexpectedly succeeded, the role that ran it also
+                # owns it and can drop it — never leave a stray table behind
+                # (a prior bug here left one behind that broke migrate deploy
+                # with a spurious "schema not empty" error).
+                if created:
+                    cur.execute(f"DROP TABLE IF EXISTS {probe_table}")
 
     with psycopg.connect(urls["food_migrator"]) as c, c.cursor() as cur:
         cur.execute("CREATE TABLE IF NOT EXISTS _permission_probe (id INT)")
