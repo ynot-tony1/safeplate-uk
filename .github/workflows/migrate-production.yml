@@ -43,6 +43,14 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
+      - name: TEMP DEBUG list existing tables
+        working-directory: packages/database
+        env:
+          DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+        run: |
+          echo "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('crdb_internal','information_schema','pg_catalog','pg_extension');" > /tmp/list_tables.sql
+          pnpm exec prisma db execute --file /tmp/list_tables.sql --url "$DATABASE_URL"
+
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
       # `migrate reset` or a destructive `db push` against production.
