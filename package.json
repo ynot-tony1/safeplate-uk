@@ -1,0 +1,25 @@
+{
+  "name": "safeplate-uk",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SafePlate UK — UK food hygiene ratings explorer",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @safeplate/web build",
+    "dev": "pnpm --filter @safeplate/web dev",
+    "lint": "pnpm -r lint",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @safeplate/web test:e2e",
+    "db:generate": "pnpm --filter @safeplate/database generate",
+    "db:migrate:deploy": "pnpm --filter @safeplate/database migrate:deploy"
+  },
+  "devDependencies": {
+    "prettier": "3.4.2"
+  }
+}

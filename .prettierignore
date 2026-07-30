@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+dist
+build
+coverage
+playwright-report
+test-results
+pnpm-lock.yaml
+services/ingestor
+packages/database/generated
+packages/database/prisma/migrations
+*.md

@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+apps/web/.vercel/
+
+# Prisma
+packages/database/generated/
+
+# Python
+services/ingestor/__pycache__/
+services/ingestor/.venv/
+services/ingestor/.pytest_cache/
+services/ingestor/.mypy_cache/
+services/ingestor/.ruff_cache/
+services/ingestor/*.egg-info/
+**/__pycache__/
+*.pyc
+
+# Test / build artifacts
+coverage/
+playwright-report/
+test-results/
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Locally-generated credential material — never committed, deleted after use
+.secrets/
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/

@@ -1,0 +1,31 @@
+services:
+  # Local CockroachDB single-node instance for development only.
+  # Production uses CockroachDB Cloud (cluster: safe-hippo) — never
+  # point this compose file at production credentials.
+  cockroachdb:
+    image: cockroachdb/cockroach:v24.1.5
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ingestor:
+    build:
+      context: ./services/ingestor
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+    environment:
+      INGEST_DATABASE_URL: "postgresql://root@cockroachdb:26257/food_hygiene?sslmode=disable"
+      LOG_LEVEL: "info"
+    command: ["python", "-m", "ingestor", "--help"]
+
+volumes:
+  cockroach-data:

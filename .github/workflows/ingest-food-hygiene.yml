@@ -1,0 +1,84 @@
+name: Scheduled FHRS/FHIS Ingestion
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Discover and validate only; do not write establishment data"
+        type: boolean
+        default: false
+      authorities:
+        description: "Comma-separated local authority codes to limit the run to (blank = all)"
+        type: string
+        default: ""
+      force:
+        description: "Re-import authorities even if their extract date hasn't changed"
+        type: boolean
+        default: false
+  schedule:
+    # Non-round UTC minute to avoid the top-of-hour scheduling stampede on GitHub's runners.
+    - cron: "17 3 * * *"
+
+concurrency:
+  group: ingest-food-hygiene
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    name: Run ingestion
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check INGESTION_ENABLED gate
+        id: gate
+        run: |
+          if [ "${{ vars.INGESTION_ENABLED }}" != "true" ]; then
+            echo "INGESTION_ENABLED repository variable is not exactly 'true' (value: '${{ vars.INGESTION_ENABLED }}'). Stopping safely without running ingestion."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+
+      - name: Build ingestor image
+        if: steps.gate.outputs.enabled == 'true'
+        working-directory: services/ingestor
+        run: docker build -t safeplate-ingestor:latest .
+
+      - name: Run ingestion
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          INGEST_DATABASE_URL: ${{ secrets.INGEST_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          ARGS=("run" "--git-sha" "${GITHUB_SHA}" "--workflow-run-id" "${GITHUB_RUN_ID}")
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS+=("--dry-run")
+          fi
+          if [ -n "${{ inputs.authorities }}" ]; then
+            ARGS+=("--authorities" "${{ inputs.authorities }}")
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            ARGS+=("--force")
+          fi
+          docker run --rm \
+            -e INGEST_DATABASE_URL \
+            -e GITHUB_RUN_ID \
+            -e GITHUB_SHA \
+            safeplate-ingestor:latest "${ARGS[@]}" | tee ingestion-summary.txt
+
+      - name: Publish job summary
+        if: steps.gate.outputs.enabled == 'true' && always()
+        run: |
+          {
+            echo "## Ingestion summary"
+            echo '```'
+            cat ingestion-summary.txt 2>/dev/null || echo "No summary output captured."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Skipped notice
+        if: steps.gate.outputs.enabled != 'true'
+        run: echo "## Ingestion skipped: INGESTION_ENABLED is not 'true'" >> "$GITHUB_STEP_SUMMARY"

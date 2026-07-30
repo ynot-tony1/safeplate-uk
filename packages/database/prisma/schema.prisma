@@ -1,0 +1,196 @@
+// SafePlate UK — CockroachDB schema
+//
+// This file is the single source of truth for the database structure.
+// Migrations are generated with `prisma migrate dev` locally against the
+// docker-compose CockroachDB instance, committed to prisma/migrations, and
+// applied to production only via `prisma migrate deploy` in
+// .github/workflows/migrate-production.yml — never via db push or migrate
+// reset against production.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+enum SchemeType {
+  FHRS
+  FHIS
+}
+
+enum IngestionStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+/// Official FSA business type reference data (e.g. "Restaurant/Cafe/Canteen").
+model BusinessType {
+  id          Int      @id
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  establishments Establishment[]
+
+  @@map("business_types")
+}
+
+/// One row per UK local authority participating in FHRS/FHIS open data.
+model LocalAuthority {
+  code            String      @id
+  name            String
+  regionName      String?     @map("region_name")
+  schemeType      SchemeType  @default(FHRS) @map("scheme_type")
+  openDataUrl     String?     @map("open_data_url")
+  lastExtractDate DateTime?   @map("last_extract_date") @db.Date
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  establishments Establishment[]
+
+  @@map("local_authorities")
+}
+
+/// Current snapshot of every establishment known from the latest successful
+/// import of its local authority. History of changes lives in RatingChange;
+/// this table only ever holds the latest known state per fhrsId.
+model Establishment {
+  fhrsId                    String     @id @map("fhrs_id")
+  businessName              String     @map("business_name")
+  normalisedName            String     @map("normalised_name")
+  businessTypeId            Int?       @map("business_type_id")
+  businessTypeName          String?    @map("business_type_name")
+  addressLine1              String?    @map("address_line_1")
+  addressLine2              String?    @map("address_line_2")
+  addressLine3              String?    @map("address_line_3")
+  addressLine4              String?    @map("address_line_4")
+  postcode                  String?
+  postcodePrefix            String?    @map("postcode_prefix")
+  localAuthorityCode        String     @map("local_authority_code")
+  localAuthorityName        String     @map("local_authority_name")
+  localAuthorityWebSite     String?    @map("local_authority_web_site")
+  localAuthorityEmail       String?    @map("local_authority_email")
+  ratingValue               String?    @map("rating_value")
+  ratingKey                 String?    @map("rating_key")
+  ratingDate                DateTime?  @map("rating_date") @db.Date
+  schemeType                SchemeType @map("scheme_type")
+  newRatingPending          Boolean    @default(false) @map("new_rating_pending")
+  hygieneScore              Int?       @map("hygiene_score")
+  structuralScore           Int?       @map("structural_score")
+  confidenceManagementScore Int?       @map("confidence_management_score")
+  longitude                 Float?
+  latitude                  Float?
+  sourceExtractDate         DateTime   @map("source_extract_date") @db.Date
+  isActive                  Boolean    @default(true) @map("is_active")
+  firstSeenAt               DateTime   @default(now()) @map("first_seen_at")
+  lastSeenAt                DateTime   @default(now()) @map("last_seen_at")
+  createdAt                 DateTime   @default(now()) @map("created_at")
+  updatedAt                 DateTime   @updatedAt @map("updated_at")
+
+  businessType   BusinessType?  @relation(fields: [businessTypeId], references: [id])
+  localAuthority LocalAuthority @relation(fields: [localAuthorityCode], references: [code])
+  ratingChanges  RatingChange[]
+
+  // Prefix search on business name
+  @@index([normalisedName])
+  // Postcode prefix search (e.g. "SW1A")
+  @@index([postcodePrefix])
+  // Filter by local authority
+  @@index([localAuthorityCode])
+  // Filter by business type
+  @@index([businessTypeId])
+  // Filter/sort by rating
+  @@index([ratingKey])
+  // Filter/sort by rating date, and inspection-recency queries
+  @@index([ratingDate])
+  // Filter by FHRS/FHIS scheme
+  @@index([schemeType])
+  // New-rating-pending filter
+  @@index([newRatingPending])
+  // Bounded lat/lon range queries for the map viewport (no PostGIS — MVP uses
+  // simple bounded-range predicates on an indexed composite pair)
+  @@index([latitude, longitude])
+  @@map("establishments")
+}
+
+/// Append-only audit trail. A row is written only when rating, rating date,
+/// business status, new-rating-pending, or a score component actually
+/// changes between two imports of the same establishment — never one row
+/// per import.
+model RatingChange {
+  id                       String    @id @default(uuid())
+  fhrsId                   String    @map("fhrs_id")
+  changedAt                DateTime  @default(now()) @map("changed_at")
+  previousRatingValue      String?   @map("previous_rating_value")
+  newRatingValue           String?   @map("new_rating_value")
+  previousRatingDate       DateTime? @map("previous_rating_date") @db.Date
+  newRatingDate            DateTime? @map("new_rating_date") @db.Date
+  previousNewRatingPending Boolean?  @map("previous_new_rating_pending")
+  newNewRatingPending      Boolean?  @map("new_new_rating_pending")
+  previousHygieneScore     Int?      @map("previous_hygiene_score")
+  newHygieneScore          Int?      @map("new_hygiene_score")
+  previousStructuralScore  Int?      @map("previous_structural_score")
+  newStructuralScore       Int?      @map("new_structural_score")
+  previousConfidenceScore  Int?      @map("previous_confidence_score")
+  newConfidenceScore       Int?      @map("new_confidence_score")
+  ingestionRunId           String?   @map("ingestion_run_id")
+
+  establishment Establishment @relation(fields: [fhrsId], references: [fhrsId])
+
+  @@index([fhrsId])
+  @@map("rating_changes")
+}
+
+/// One row per ingestion workflow execution, used by /status and CI summaries.
+model IngestionRun {
+  id                      String           @id @default(uuid())
+  status                  IngestionStatus  @default(RUNNING)
+  sourceExtractDate       DateTime?        @map("source_extract_date") @db.Date
+  localAuthoritiesChecked Int              @default(0) @map("local_authorities_checked")
+  localAuthoritiesChanged Int              @default(0) @map("local_authorities_changed")
+  rowsSeen                Int              @default(0) @map("rows_seen")
+  rowsInserted            Int              @default(0) @map("rows_inserted")
+  rowsUpdated             Int              @default(0) @map("rows_updated")
+  ratingChangesCreated    Int              @default(0) @map("rating_changes_created")
+  rowsRejected            Int              @default(0) @map("rows_rejected")
+  startedAt               DateTime         @default(now()) @map("started_at")
+  completedAt             DateTime?        @map("completed_at")
+  workflowRunId           String?          @map("workflow_run_id")
+  gitSha                  String?          @map("git_sha")
+  errorSummary            String?          @map("error_summary") @db.String(4000)
+
+  @@index([startedAt])
+  @@map("ingestion_runs")
+}
+
+/// Precomputed statistics for the dashboard and local-authority explorer.
+/// scope is "global" for site-wide metrics, or a local authority code for
+/// per-authority metrics — avoids expensive aggregate queries at request time.
+model DailyMetric {
+  id                       String   @id @default(uuid())
+  metricDate               DateTime @map("metric_date") @db.Date
+  scope                    String
+  localAuthorityCode       String?  @map("local_authority_code")
+  totalEstablishments      Int      @default(0) @map("total_establishments")
+  rated5Count              Int      @default(0) @map("rated_5_count")
+  rated0to2Count           Int      @default(0) @map("rated_0_to_2_count")
+  awaitingCount            Int      @default(0) @map("awaiting_count")
+  newRatingPendingCount    Int      @default(0) @map("new_rating_pending_count")
+  inspectionsLatestMonth   Int      @default(0) @map("inspections_latest_month")
+  participatingAuthorities Int      @default(0) @map("participating_authorities")
+  avgDaysSinceInspection   Float?   @map("avg_days_since_inspection")
+  businessTypeMix          Json?    @map("business_type_mix")
+  ratingDistribution       Json?    @map("rating_distribution")
+  inspectionsByMonth       Json?    @map("inspections_by_month")
+  computedAt               DateTime @default(now()) @map("computed_at")
+
+  @@unique([metricDate, scope, localAuthorityCode])
+  @@index([scope, metricDate])
+  @@map("daily_metrics")
+}

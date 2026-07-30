@@ -1,0 +1,53 @@
+name: Apply Production Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm you want to run prisma migrate deploy against production'
+        type: string
+        required: true
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: prisma migrate deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Confirm intent
+        run: |
+          if [ "${{ inputs.confirm }}" != "deploy" ]; then
+            echo "Confirmation input did not match 'deploy'. Aborting without running migrations."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
+      # already-reviewed migrations. It never generates new migrations and never runs
+      # `migrate reset` or a destructive `db push` against production.
+      - name: Apply migrations
+        working-directory: packages/database
+        env:
+          DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+        run: pnpm exec prisma migrate deploy
