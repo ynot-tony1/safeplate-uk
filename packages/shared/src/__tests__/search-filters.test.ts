@@ -32,9 +32,7 @@ describe("establishmentSearchParamsSchema", () => {
   });
 
   it("rejects a malformed rating date", () => {
-    expect(() =>
-      establishmentSearchParamsSchema.parse({ ratingDateFrom: "not-a-date" }),
-    ).toThrow();
+    expect(() => establishmentSearchParamsSchema.parse({ ratingDateFrom: "not-a-date" })).toThrow();
   });
 });
 

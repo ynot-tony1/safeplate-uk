@@ -22,27 +22,23 @@ describe("isValidUkCoordinate", () => {
 
 describe("isValidBoundingBox", () => {
   it("accepts a small well-ordered box within the UK", () => {
-    expect(
-      isValidBoundingBox({ minLat: 51.4, maxLat: 51.6, minLon: -0.2, maxLon: 0.0 }),
-    ).toBe(true);
+    expect(isValidBoundingBox({ minLat: 51.4, maxLat: 51.6, minLon: -0.2, maxLon: 0.0 })).toBe(
+      true,
+    );
   });
 
   it("rejects an inverted box", () => {
-    expect(
-      isValidBoundingBox({ minLat: 51.6, maxLat: 51.4, minLon: -0.2, maxLon: 0.0 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ minLat: 51.6, maxLat: 51.4, minLon: -0.2, maxLon: 0.0 })).toBe(
+      false,
+    );
   });
 
   it("rejects a box exceeding the max span", () => {
-    expect(
-      isValidBoundingBox({ minLat: 40, maxLat: 60, minLon: -10, maxLon: 10 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ minLat: 40, maxLat: 60, minLon: -10, maxLon: 10 })).toBe(false);
   });
 
   it("rejects a box far outside the UK", () => {
-    expect(
-      isValidBoundingBox({ minLat: -10, maxLat: -5, minLon: 100, maxLon: 105 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ minLat: -10, maxLat: -5, minLon: 100, maxLon: 105 })).toBe(false);
   });
 });
 
