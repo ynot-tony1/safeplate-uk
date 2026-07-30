@@ -169,6 +169,12 @@ CREATE INDEX "daily_metrics_scope_metric_date_idx" ON "daily_metrics"("scope", "
 -- CreateIndex
 CREATE UNIQUE INDEX "daily_metrics_metric_date_scope_local_authority_code_key" ON "daily_metrics"("metric_date", "scope", "local_authority_code");
 
+-- CockroachDB locks newly-created tables by default (optimizes changefeed
+-- performance we don't use) which blocks the FK-adding ALTER TABLE
+-- statements below unless explicitly unlocked first.
+ALTER TABLE "establishments" SET (schema_locked = false);
+ALTER TABLE "rating_changes" SET (schema_locked = false);
+
 -- AddForeignKey
 ALTER TABLE "establishments" ADD CONSTRAINT "establishments_business_type_id_fkey" FOREIGN KEY ("business_type_id") REFERENCES "business_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -177,3 +183,7 @@ ALTER TABLE "establishments" ADD CONSTRAINT "establishments_local_authority_code
 
 -- AddForeignKey
 ALTER TABLE "rating_changes" ADD CONSTRAINT "rating_changes_fhrs_id_fkey" FOREIGN KEY ("fhrs_id") REFERENCES "establishments"("fhrs_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Restore the default lock now that the FK schema changes are complete.
+ALTER TABLE "establishments" SET (schema_locked = true);
+ALTER TABLE "rating_changes" SET (schema_locked = true);
