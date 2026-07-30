@@ -48,7 +48,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
         run: |
-          cat > /tmp/debug-list-tables.mjs <<'EOF'
+          cat > ./debug-list-tables.mjs <<'EOF'
           import { PrismaClient } from "./generated/client/index.js";
           const prisma = new PrismaClient();
           const rows = await prisma.$queryRawUnsafe(
@@ -57,7 +57,8 @@ jobs:
           console.log(JSON.stringify(rows, null, 2));
           await prisma.$disconnect();
           EOF
-          node /tmp/debug-list-tables.mjs
+          node ./debug-list-tables.mjs
+          rm -f ./debug-list-tables.mjs
 
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
