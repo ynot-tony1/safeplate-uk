@@ -43,6 +43,40 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
+      # ONE-TIME RECOVERY: earlier attempts (before the real root cause —
+      # CockroachDB's create_table_with_schema_locked default — was found
+      # and verified) left this migration marked failed. No real data
+      # exists yet, so drop any partial objects and clear the failed state
+      # before the now-verified migration reapplies below. Remove once run.
+      - name: TEMP RECOVERY clear failed migration state
+        working-directory: packages/database
+        env:
+          DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+        run: |
+          cat > ./recovery.mjs <<'EOF'
+          import { PrismaClient } from "./generated/client/index.js";
+          const prisma = new PrismaClient();
+          const tables = [
+            "rating_changes",
+            "establishments",
+            "daily_metrics",
+            "ingestion_runs",
+            "local_authorities",
+            "business_types",
+          ];
+          for (const t of tables) {
+            await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "${t}" CASCADE`);
+          }
+          for (const ty of ["SchemeType", "IngestionStatus"]) {
+            await prisma.$executeRawUnsafe(`DROP TYPE IF EXISTS "${ty}"`);
+          }
+          console.log("Dropped any partial tables and types.");
+          await prisma.$disconnect();
+          EOF
+          node ./recovery.mjs
+          rm -f ./recovery.mjs
+          pnpm exec prisma migrate resolve --rolled-back 20260730160708_init || echo "Already resolved, continuing."
+
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
       # `migrate reset` or a destructive `db push` against production.
