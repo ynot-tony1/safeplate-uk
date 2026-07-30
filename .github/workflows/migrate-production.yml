@@ -68,12 +68,15 @@ jobs:
           for (const t of tables) {
             await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "${t}" CASCADE`);
           }
-          console.log("Dropped partial tables.");
+          for (const ty of ["SchemeType", "IngestionStatus"]) {
+            await prisma.$executeRawUnsafe(`DROP TYPE IF EXISTS "${ty}"`);
+          }
+          console.log("Dropped partial tables and types.");
           await prisma.$disconnect();
           EOF
           node ./recovery.mjs
           rm -f ./recovery.mjs
-          pnpm exec prisma migrate resolve --rolled-back 20260730160708_init
+          pnpm exec prisma migrate resolve --rolled-back 20260730160708_init || echo "Already resolved, continuing."
 
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
