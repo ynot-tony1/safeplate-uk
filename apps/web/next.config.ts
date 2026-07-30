@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
   // external by default and won't apply that .js->.ts resolution unless the
   // package is pulled into Next's own compilation graph.
   transpilePackages: ["@safeplate/shared", "@safeplate/database"],
+
+  // Next's file tracer doesn't statically detect the Prisma query engine's
+  // native .so binary (it's loaded dynamically, not via a static import), so
+  // it gets left out of the serverless function bundle unless explicitly
+  // included here — otherwise every DB call fails at runtime with "could
+  // not locate the Query Engine" despite `binaryTargets` in schema.prisma
+  // being correct and `prisma generate` having run successfully.
+  outputFileTracingIncludes: {
+    "/**": ["../../packages/database/generated/client/**/*"],
+  },
 };
 
 export default nextConfig;
