@@ -53,14 +53,14 @@ model BusinessType {
 
 /// One row per UK local authority participating in FHRS/FHIS open data.
 model LocalAuthority {
-  code            String      @id
+  code            String     @id
   name            String
-  regionName      String?     @map("region_name")
-  schemeType      SchemeType  @default(FHRS) @map("scheme_type")
-  openDataUrl     String?     @map("open_data_url")
-  lastExtractDate DateTime?   @map("last_extract_date") @db.Date
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
+  regionName      String?    @map("region_name")
+  schemeType      SchemeType @default(FHRS) @map("scheme_type")
+  openDataUrl     String?    @map("open_data_url")
+  lastExtractDate DateTime?  @map("last_extract_date") @db.Date
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
 
   establishments Establishment[]
 
@@ -134,7 +134,7 @@ model Establishment {
 /// changes between two imports of the same establishment — never one row
 /// per import.
 model RatingChange {
-  id                       String    @id @default(uuid())
+  id                       String    @id @default(dbgenerated("gen_random_uuid()"))
   fhrsId                   String    @map("fhrs_id")
   changedAt                DateTime  @default(now()) @map("changed_at")
   previousRatingValue      String?   @map("previous_rating_value")
@@ -159,21 +159,21 @@ model RatingChange {
 
 /// One row per ingestion workflow execution, used by /status and CI summaries.
 model IngestionRun {
-  id                      String           @id @default(uuid())
-  status                  IngestionStatus  @default(RUNNING)
-  sourceExtractDate       DateTime?        @map("source_extract_date") @db.Date
-  localAuthoritiesChecked Int              @default(0) @map("local_authorities_checked")
-  localAuthoritiesChanged Int              @default(0) @map("local_authorities_changed")
-  rowsSeen                Int              @default(0) @map("rows_seen")
-  rowsInserted            Int              @default(0) @map("rows_inserted")
-  rowsUpdated             Int              @default(0) @map("rows_updated")
-  ratingChangesCreated    Int              @default(0) @map("rating_changes_created")
-  rowsRejected            Int              @default(0) @map("rows_rejected")
-  startedAt               DateTime         @default(now()) @map("started_at")
-  completedAt             DateTime?        @map("completed_at")
-  workflowRunId           String?          @map("workflow_run_id")
-  gitSha                  String?          @map("git_sha")
-  errorSummary            String?          @map("error_summary") @db.String(4000)
+  id                      String          @id @default(dbgenerated("gen_random_uuid()"))
+  status                  IngestionStatus @default(RUNNING)
+  sourceExtractDate       DateTime?       @map("source_extract_date") @db.Date
+  localAuthoritiesChecked Int             @default(0) @map("local_authorities_checked")
+  localAuthoritiesChanged Int             @default(0) @map("local_authorities_changed")
+  rowsSeen                Int             @default(0) @map("rows_seen")
+  rowsInserted            Int             @default(0) @map("rows_inserted")
+  rowsUpdated             Int             @default(0) @map("rows_updated")
+  ratingChangesCreated    Int             @default(0) @map("rating_changes_created")
+  rowsRejected            Int             @default(0) @map("rows_rejected")
+  startedAt               DateTime        @default(now()) @map("started_at")
+  completedAt             DateTime?       @map("completed_at")
+  workflowRunId           String?         @map("workflow_run_id")
+  gitSha                  String?         @map("git_sha")
+  errorSummary            String?         @map("error_summary") @db.String(4000)
 
   @@index([startedAt])
   @@map("ingestion_runs")
@@ -183,7 +183,7 @@ model IngestionRun {
 /// scope is "global" for site-wide metrics, or a local authority code for
 /// per-authority metrics — avoids expensive aggregate queries at request time.
 model DailyMetric {
-  id                       String   @id @default(uuid())
+  id                       String   @id @default(dbgenerated("gen_random_uuid()"))
   metricDate               DateTime @map("metric_date") @db.Date
   scope                    String
   localAuthorityCode       String?  @map("local_authority_code")

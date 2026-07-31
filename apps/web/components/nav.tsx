@@ -24,10 +24,12 @@ export function Nav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold"
+          className="flex items-center gap-2.5 font-semibold"
           onClick={() => setOpen(false)}
         >
-          <UtensilsCrossed className="size-5" aria-hidden="true" />
+          <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <UtensilsCrossed className="size-4.5" aria-hidden="true" />
+          </span>
           <span>SafePlate UK</span>
         </Link>
 

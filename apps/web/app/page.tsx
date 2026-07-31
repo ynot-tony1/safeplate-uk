@@ -68,23 +68,37 @@ export default async function DashboardPage() {
           label="Indexed establishments"
           value={formatNumber(data.totalEstablishments)}
           icon={Building2}
+          tone="blue"
         />
-        <StatTile label="Rated 5" value={formatNumber(data.rated5Count)} icon={ShieldCheck} />
-        <StatTile label="Rated 0–2" value={formatNumber(data.rated0to2Count)} icon={ShieldX} />
+        <StatTile
+          label="Rated 5"
+          value={formatNumber(data.rated5Count)}
+          icon={ShieldCheck}
+          tone="good"
+        />
+        <StatTile
+          label="Rated 0–2"
+          value={formatNumber(data.rated0to2Count)}
+          icon={ShieldX}
+          tone="critical"
+        />
         <StatTile
           label="Awaiting / new rating pending"
           value={formatNumber(data.awaitingCount + data.newRatingPendingCount)}
           icon={Hourglass}
+          tone="amber"
         />
         <StatTile
           label="Inspections (latest month)"
           value={formatNumber(data.inspectionsLatestMonth)}
           icon={ClipboardCheck}
+          tone="aqua"
         />
         <StatTile
           label="Participating local authorities"
           value={formatNumber(data.participatingAuthorities)}
           icon={MapPinned}
+          tone="magenta"
         />
         <StatTile
           label="Latest successful ingestion"
@@ -92,6 +106,7 @@ export default async function DashboardPage() {
             data.latestSuccessfulRun ? formatDateTime(data.latestSuccessfulRun.completedAt) : "—"
           }
           icon={CalendarClock}
+          tone="orange"
         />
         <StatTile
           label="Source extract date"
