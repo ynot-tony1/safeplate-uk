@@ -27,7 +27,7 @@ jobs:
   ingest:
     name: Run ingestion
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - name: Check INGESTION_ENABLED gate
         id: gate
