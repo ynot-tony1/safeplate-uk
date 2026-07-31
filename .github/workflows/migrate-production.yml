@@ -43,17 +43,6 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
-      # ONE-TIME RECOVERY: the grant migration failed outright (food_migrator
-      # lacks CREATEROLE) before the file was fixed to drop the unnecessary
-      # CREATE ROLE statement — nothing was actually applied, so this just
-      # clears the failed-migration marker. Remove once run.
-      - name: TEMP RECOVERY clear failed grant migration marker
-        working-directory: packages/database
-        env:
-          DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
-        run: |
-          pnpm exec prisma migrate resolve --rolled-back 20260731091500_grant_ingestor_delete_on_daily_metrics || echo "Already resolved, continuing."
-
       # Deliberately uses `prisma migrate deploy` only — this applies already-committed,
       # already-reviewed migrations. It never generates new migrations and never runs
       # `migrate reset` or a destructive `db push` against production.
