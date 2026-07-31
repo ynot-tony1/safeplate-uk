@@ -104,3 +104,4 @@ uv run python -m ingestor --help
 See `docs/` for the calibration/cost report and rollout status as the
 project progresses through ingestion calibration and full-dataset import
 approval.
+<!-- preview deployment test -->
