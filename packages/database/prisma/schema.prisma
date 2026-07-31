@@ -8,9 +8,8 @@
 // reset against production.
 
 generator client {
-  provider      = "prisma-client-js"
-  output        = "../generated/client"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider = "prisma-client-js"
+  output   = "../generated/client"
 }
 
 datasource db {
