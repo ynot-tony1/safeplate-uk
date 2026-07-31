@@ -23,21 +23,30 @@ from ingestor.models import DiscoveryAuthority, EstablishmentRecord
 logger = structlog.get_logger(__name__)
 
 
+_DEBIAN_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt"
+
+
 def connect(dsn: str) -> psycopg.Connection:
     """Open a new connection. Callers own the connection's lifecycle
     (use as a context manager). Never logs `dsn`.
 
-    For verify-full/verify-ca DSNs, passes sslrootcert="system" so the
-    connection uses the container's system CA trust store rather than
-    libpq's default ~/.postgresql/root.crt (which doesn't exist in this
-    image). Node-based tooling elsewhere in this project (the web app,
-    Prisma migrations) trusts the system store automatically for the same
-    connections; libpq does not unless told to. libpq rejects
-    sslrootcert=system combined with sslmode=disable (used for local dev),
-    so it's only added when certificate verification is actually requested.
+    For verify-full/verify-ca DSNs, points sslrootcert at the system CA
+    bundle rather than libpq's default ~/.postgresql/root.crt (which
+    doesn't exist in this image). Node-based tooling elsewhere in this
+    project (the web app, Prisma migrations) trusts the system store
+    automatically for the same connections; libpq does not unless told to.
+
+    Uses the concrete bundle file path, not sslrootcert="system" — verified
+    directly against the real CockroachDB Cloud endpoint that this libpq
+    build's "system" keyword fails verification ("SSL error: certificate
+    verify failed") even though the identical chain validates fine via
+    Python's own ssl module and via the explicit file path, which succeeds
+    (confirmed by reaching a real auth-failure error past the TLS layer).
+    libpq rejects sslrootcert combined with sslmode=disable (local dev), so
+    it's only added when certificate verification is actually requested.
     """
     if "sslmode=verify-full" in dsn or "sslmode=verify-ca" in dsn:
-        return psycopg.connect(dsn, autocommit=False, sslrootcert="system")
+        return psycopg.connect(dsn, autocommit=False, sslrootcert=_DEBIAN_CA_BUNDLE)
     return psycopg.connect(dsn, autocommit=False)
 
 
