@@ -7,8 +7,10 @@
 -- local_authority_code is NULL — standard SQL treats NULLs as distinct
 -- for uniqueness purposes, so ON CONFLICT would silently insert
 -- duplicates rather than update.
--- CREATE ROLE IF NOT EXISTS keeps this migration portable to local/CI
--- databases where food_ingestor doesn't exist (a harmless, unused role
--- there) — in production it's a no-op since the role already exists.
-CREATE ROLE IF NOT EXISTS food_ingestor;
+-- food_ingestor already exists in production (created during CockroachDB
+-- bootstrap, see scripts/bootstrap_cockroachdb.py) — food_migrator only has
+-- DDL rights on this database/schema, not the cluster-level CREATEROLE
+-- privilege, so this can't create the role itself if missing. For local
+-- dev/testing of this migration, create a matching role once manually:
+-- `CREATE ROLE food_ingestor;`
 GRANT DELETE ON "daily_metrics" TO food_ingestor;
