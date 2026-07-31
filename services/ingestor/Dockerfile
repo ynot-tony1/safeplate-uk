@@ -23,6 +23,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:3.12-slim AS runtime
 
+# python:3.12-slim ships without ca-certificates, so sslrootcert=system
+# (used for verify-full CockroachDB Cloud connections, see db.py) would
+# otherwise find an empty trust store and fail all TLS verification.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --system ingestor && useradd --system --gid ingestor --create-home ingestor
 
 COPY --from=builder --chown=ingestor:ingestor /app/.venv /app/.venv
