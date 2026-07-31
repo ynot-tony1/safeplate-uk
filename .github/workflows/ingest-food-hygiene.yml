@@ -47,24 +47,6 @@ jobs:
         working-directory: services/ingestor
         run: docker build -t safeplate-ingestor:latest .
 
-      # TEMP CALIBRATION: measure storage before/after this run for
-      # docs/cost-calibration.md. Remove once the calibration report is done.
-      - name: TEMP CALIBRATION measure storage before
-        if: steps.gate.outputs.enabled == 'true'
-        run: |
-          docker run --rm -e MEASURE_DATABASE_URL="${{ secrets.MIGRATION_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
-          import os
-          from ingestor.db import connect
-          # SHOW RANGES ... WITH DETAILS needs VIEWACTIVITY, which
-          # food_ingestor deliberately doesn't have (least privilege) — use
-          # food_migrator for this diagnostic/ops-only measurement instead.
-          with connect(os.environ['MEASURE_DATABASE_URL']) as c, c.cursor() as cur:
-              cur.execute(\"SELECT sum(range_size_mb) AS total_mb, count(*) AS range_count FROM [SHOW RANGES FROM DATABASE food_hygiene WITH DETAILS]\")
-              row = cur.fetchone()
-              print(f'CALIBRATION_BEFORE_MB={row[0]}')
-              print(f'CALIBRATION_BEFORE_RANGES={row[1]}')
-          " | tee calibration-before.txt
-
       - name: Run ingestion
         if: steps.gate.outputs.enabled == 'true'
         env:
@@ -87,24 +69,6 @@ jobs:
             -e GITHUB_SHA \
             safeplate-ingestor:latest "${ARGS[@]}" | tee ingestion-summary.txt
 
-      - name: TEMP CALIBRATION measure storage after
-        if: steps.gate.outputs.enabled == 'true' && always()
-        run: |
-          docker run --rm -e MEASURE_DATABASE_URL="${{ secrets.MIGRATION_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
-          import os
-          from ingestor.db import connect
-          # SHOW RANGES ... WITH DETAILS needs VIEWACTIVITY, which
-          # food_ingestor deliberately doesn't have (least privilege) — use
-          # food_migrator for this diagnostic/ops-only measurement instead.
-          with connect(os.environ['MEASURE_DATABASE_URL']) as c, c.cursor() as cur:
-              cur.execute(\"SELECT sum(range_size_mb) AS total_mb, count(*) AS range_count FROM [SHOW RANGES FROM DATABASE food_hygiene WITH DETAILS]\")
-              row = cur.fetchone()
-              print(f'CALIBRATION_AFTER_MB={row[0]}')
-              print(f'CALIBRATION_AFTER_RANGES={row[1]}')
-              cur.execute('SELECT count(*) FROM establishments')
-              print(f'CALIBRATION_ROW_COUNT={cur.fetchone()[0]}')
-          " | tee calibration-after.txt
-
       - name: Publish job summary
         if: steps.gate.outputs.enabled == 'true' && always()
         run: |
@@ -112,11 +76,6 @@ jobs:
             echo "## Ingestion summary"
             echo '```'
             cat ingestion-summary.txt 2>/dev/null || echo "No summary output captured."
-            echo '```'
-            echo "## Calibration measurements"
-            echo '```'
-            cat calibration-before.txt 2>/dev/null || echo "No before-measurement captured."
-            cat calibration-after.txt 2>/dev/null || echo "No after-measurement captured."
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
