@@ -52,10 +52,13 @@ jobs:
       - name: TEMP CALIBRATION measure storage before
         if: steps.gate.outputs.enabled == 'true'
         run: |
-          docker run --rm -e INGEST_DATABASE_URL="${{ secrets.INGEST_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
+          docker run --rm -e MEASURE_DATABASE_URL="${{ secrets.MIGRATION_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
           import os
           from ingestor.db import connect
-          with connect(os.environ['INGEST_DATABASE_URL']) as c, c.cursor() as cur:
+          # SHOW RANGES ... WITH DETAILS needs VIEWACTIVITY, which
+          # food_ingestor deliberately doesn't have (least privilege) — use
+          # food_migrator for this diagnostic/ops-only measurement instead.
+          with connect(os.environ['MEASURE_DATABASE_URL']) as c, c.cursor() as cur:
               cur.execute(\"SELECT sum(range_size_mb) AS total_mb, count(*) AS range_count FROM [SHOW RANGES FROM DATABASE food_hygiene WITH DETAILS]\")
               row = cur.fetchone()
               print(f'CALIBRATION_BEFORE_MB={row[0]}')
@@ -87,10 +90,13 @@ jobs:
       - name: TEMP CALIBRATION measure storage after
         if: steps.gate.outputs.enabled == 'true' && always()
         run: |
-          docker run --rm -e INGEST_DATABASE_URL="${{ secrets.INGEST_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
+          docker run --rm -e MEASURE_DATABASE_URL="${{ secrets.MIGRATION_DATABASE_URL }}" --entrypoint python safeplate-ingestor:latest -c "
           import os
           from ingestor.db import connect
-          with connect(os.environ['INGEST_DATABASE_URL']) as c, c.cursor() as cur:
+          # SHOW RANGES ... WITH DETAILS needs VIEWACTIVITY, which
+          # food_ingestor deliberately doesn't have (least privilege) — use
+          # food_migrator for this diagnostic/ops-only measurement instead.
+          with connect(os.environ['MEASURE_DATABASE_URL']) as c, c.cursor() as cur:
               cur.execute(\"SELECT sum(range_size_mb) AS total_mb, count(*) AS range_count FROM [SHOW RANGES FROM DATABASE food_hygiene WITH DETAILS]\")
               row = cur.fetchone()
               print(f'CALIBRATION_AFTER_MB={row[0]}')
