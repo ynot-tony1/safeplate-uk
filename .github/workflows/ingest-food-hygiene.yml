@@ -27,7 +27,9 @@ jobs:
   ingest:
     name: Run ingestion
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # 360 is GitHub Actions' hard ceiling for hosted runners — there's no
+    # way to request an uncapped job, so this is the practical maximum.
+    timeout-minutes: 360
     steps:
       - name: Check INGESTION_ENABLED gate
         id: gate
