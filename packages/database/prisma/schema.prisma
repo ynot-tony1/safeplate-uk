@@ -8,8 +8,18 @@
 // reset against production.
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/client"
+  provider      = "prisma-client-js"
+  output        = "../generated/client"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  // The default "library" engine type loads the native binary for query
+  // compilation even when a driver adapter (@prisma/adapter-pg) handles DB
+  // I/O — the adapter alone doesn't remove the binary dependency. (Tried
+  // engineType = "client" to remove it entirely; hit an unrelated runtime
+  // bug in this Prisma version, so sticking with the binary + adapter
+  // combination, which is verified working.) Next's file tracer doesn't
+  // statically detect the binary since it's loaded dynamically, so it must
+  // also be forced into the bundle via outputFileTracingIncludes in
+  // next.config.ts.
 }
 
 datasource db {
