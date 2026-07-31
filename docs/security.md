@@ -17,7 +17,7 @@
    | Role            | Used by                          | Privileges                                            |
    |-----------------|-----------------------------------|--------------------------------------------------------|
    | `food_migrator` | `migrate-production.yml` only     | DDL + DML on `food_hygiene`                            |
-   | `food_ingestor` | Scheduled ingestion workflow       | SELECT/INSERT/UPDATE on establishment-related tables    |
+   | `food_ingestor` | Scheduled ingestion workflow       | SELECT/INSERT/UPDATE on establishment-related tables, plus DELETE narrowly on `daily_metrics` only (a fully-derived, fully-regenerated-each-run table — see migration `20260731091500_grant_ingestor_delete_on_daily_metrics`) |
    | `food_app`      | Vercel-hosted Next.js application  | SELECT only — cannot migrate schema or bulk-modify data |
 
 4. **Production migrations are manual and reviewed.** `prisma migrate
