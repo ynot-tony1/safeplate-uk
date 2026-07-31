@@ -69,7 +69,7 @@ jobs:
           INGEST_DATABASE_URL: ${{ secrets.INGEST_DATABASE_URL }}
         run: |
           set -euo pipefail
-          ARGS=("run" "--git-sha" "${GITHUB_SHA}" "--workflow-run-id" "${GITHUB_RUN_ID}")
+          ARGS=("run")
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             ARGS+=("--dry-run")
           fi
