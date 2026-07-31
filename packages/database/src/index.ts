@@ -6,11 +6,23 @@ declare global {
   var __safeplatePrisma: PrismaClient | undefined;
 }
 
-// Uses the pg driver adapter (WASM query compiler, no native query-engine
-// binary) instead of the default binary engine. Native engine binaries are
-// not reliably traceable into Vercel's serverless function bundle across
-// monorepo package boundaries — this sidesteps that entire class of
-// "could not locate the Query Engine" deployment failures.
+// The pg driver adapter handles DB I/O, but the default "library" engine
+// type still needs the native query-engine binary for query compilation.
+// Next's Turbopack bundling gives that binary's loader a synthetic
+// __dirname (not a real filesystem path), so Prisma's own relative-path
+// search for the binary can never succeed on Vercel even though the file
+// is genuinely present (confirmed via a temporary filesystem-inspection
+// route) at /var/task/packages/database/generated/client/. Pointing
+// PRISMA_QUERY_ENGINE_LIBRARY there directly bypasses that broken search.
+// Set here (at runtime, on first import) rather than as a Vercel project
+// env var — the build-time `prisma generate` step also reads this var and
+// fails outright if it's set to a path that doesn't exist yet at that
+// point in the build.
+if (process.env.VERCEL === "1" && !process.env.PRISMA_QUERY_ENGINE_LIBRARY) {
+  process.env.PRISMA_QUERY_ENGINE_LIBRARY =
+    "/var/task/packages/database/generated/client/libquery_engine-rhel-openssl-3.0.x.so.node";
+}
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 /**
