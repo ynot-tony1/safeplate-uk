@@ -56,6 +56,40 @@ def parse_rating_value(raw: str | None) -> str | None:
     return cleaned or None
 
 
+_RATING_KEY_MAP = {
+    "pass": "pass",
+    "pass and eat safe": "pass_and_eat_safe",
+    "improvement required": "improvement_required",
+    "exempt": "exempt",
+    "awaitinginspection": "awaiting_inspection",
+    "awaiting inspection": "awaiting_inspection",
+    "awaitingpublication": "awaiting_publication",
+    "awaiting publication": "awaiting_publication",
+}
+
+
+def parse_rating_key(rating_value: str | None) -> str | None:
+    """Normalise a cleaned RatingValue into the app's small closed rating-key
+    taxonomy ("5".."0", "pass", "pass_and_eat_safe", "improvement_required",
+    "awaiting_inspection", "awaiting_publication", "exempt").
+
+    This mirrors packages/shared/src/rating.ts's parseRating exactly — the
+    two must stay in sync since apps/web's search filter, rating badges, and
+    dashboard charts all key off these exact string values.
+
+    Deliberately does NOT use the FSA XML's own <RatingKey> element (a
+    machine slug like "fhrs_5_en-GB" / "fhis_pass_and_eat_safe_en-GB") —
+    that's FSA's internal identifier, not this app's rating-key taxonomy.
+    Returns None for a value FSA might introduce later that isn't in this
+    map yet, rather than storing something the app can't interpret.
+    """
+    if rating_value is None:
+        return None
+    if rating_value in _FHRS_NUMERIC:
+        return rating_value
+    return _RATING_KEY_MAP.get(rating_value.strip().lower())
+
+
 def is_known_rating_value(value: str) -> bool:
     """True if `value` matches a documented FHRS/FHIS rating shape."""
     if value in _FHRS_NUMERIC:

@@ -13,6 +13,7 @@ export const RATING_KEYS = [
   "1",
   "0",
   "pass",
+  "pass_and_eat_safe",
   "improvement_required",
   "awaiting_inspection",
   "awaiting_publication",

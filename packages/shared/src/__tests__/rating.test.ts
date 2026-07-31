@@ -35,9 +35,16 @@ describe("parseRating", () => {
     });
   });
 
-  it("returns a null key for an unrecognised value but keeps the raw value", () => {
+  it("parses FHIS Pass and Eat Safe", () => {
     expect(parseRating("Pass and Eat Safe")).toEqual({
       ratingValue: "Pass and Eat Safe",
+      ratingKey: "pass_and_eat_safe",
+    });
+  });
+
+  it("returns a null key for a genuinely unrecognised value but keeps the raw value", () => {
+    expect(parseRating("Some New Rating FSA Invents Later")).toEqual({
+      ratingValue: "Some New Rating FSA Invents Later",
       ratingKey: null,
     });
   });

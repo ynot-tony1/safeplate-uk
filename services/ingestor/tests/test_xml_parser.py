@@ -37,6 +37,7 @@ class TestValidFile:
         assert record.postcode == "TS6 6UD"
         assert record.postcode_prefix == "TS6"
         assert record.rating_value == "5"
+        assert record.rating_key == "5"
         assert record.scheme_type == "FHRS"
         assert record.hygiene_score == 0
         assert record.structural_score == 5
@@ -55,6 +56,7 @@ class TestValidFile:
         assert record.latitude is None
         assert record.rating_date is None
         assert record.rating_value == "AwaitingInspection"
+        assert record.rating_key == "awaiting_inspection"
 
 
 class TestFhisFile:
@@ -69,6 +71,17 @@ class TestFhisFile:
         _, items = _parse(fixtures_dir / "valid_fhis.xml")
         values = {i.rating_value for i in items if isinstance(i, EstablishmentRecord)}
         assert values == {"Improvement Required", "Pass and Eat Safe"}
+
+    def test_fhis_rating_keys_normalised_not_raw_fsa_slug(self, fixtures_dir: Path) -> None:
+        # Regression test: rating_key must be this app's own small taxonomy
+        # ("improvement_required", "pass_and_eat_safe", ...), never FSA's raw
+        # <RatingKey> XML slug (e.g. "fhis_pass_and_eat_safe_en-GB") — a
+        # mismatch here silently breaks the web app's rating filter/badges
+        # since they only recognise the app's own taxonomy.
+        _, items = _parse(fixtures_dir / "valid_fhis.xml")
+        keys = {i.rating_key for i in items if isinstance(i, EstablishmentRecord)}
+        assert keys == {"improvement_required", "pass_and_eat_safe"}
+        assert not any(k and k.startswith("fhis_") for k in keys)
 
     def test_fhis_new_rating_pending_true(self, fixtures_dir: Path) -> None:
         _, items = _parse(fixtures_dir / "valid_fhis.xml")

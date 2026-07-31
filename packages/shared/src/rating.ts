@@ -24,6 +24,7 @@ export function parseRating(raw: string | null | undefined): ParsedRating {
   const lower = trimmed.toLowerCase();
   const map: Record<string, RatingKey> = {
     pass: "pass",
+    "pass and eat safe": "pass_and_eat_safe",
     "improvement required": "improvement_required",
     exempt: "exempt",
     awaitinginspection: "awaiting_inspection",

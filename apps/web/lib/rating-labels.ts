@@ -13,6 +13,7 @@ export const RATING_LABELS: Record<RatingKey, string> = {
   "1": "1 — Major Improvement Necessary",
   "0": "0 — Urgent Improvement Necessary",
   pass: "Pass",
+  pass_and_eat_safe: "Pass and Eat Safe",
   improvement_required: "Improvement Required",
   awaiting_inspection: "Awaiting Inspection",
   awaiting_publication: "Awaiting Publication",
@@ -27,6 +28,7 @@ export function ratingSeverity(key: string | null | undefined): RatingSeverity {
     case "5":
     case "4":
     case "pass":
+    case "pass_and_eat_safe":
       return "good";
     case "3":
       return "warning";

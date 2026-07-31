@@ -7,7 +7,13 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ingestor.normalise import normalise_name, normalise_postcode
-from ingestor.rating import parse_bool, parse_rating_value, parse_score, validate_uk_coordinates
+from ingestor.rating import (
+    parse_bool,
+    parse_rating_key,
+    parse_rating_value,
+    parse_score,
+    validate_uk_coordinates,
+)
 
 
 def _blank_to_none(v: object) -> object:
@@ -153,6 +159,9 @@ class EstablishmentRecord(BaseModel):
         rating_date_raw = field("RatingDate")
         rating_date = _parse_date(rating_date_raw)
 
+        rating_value = parse_rating_value(field("RatingValue"))
+        rating_key = parse_rating_key(rating_value)
+
         return cls(
             fhrs_id=str(field("FHRSID") or ""),
             business_name=business_name,
@@ -169,8 +178,8 @@ class EstablishmentRecord(BaseModel):
             local_authority_name=field("LocalAuthorityName") or "",
             local_authority_web_site=field("LocalAuthorityWebSite"),
             local_authority_email=field("LocalAuthorityEmailAddress"),
-            rating_value=parse_rating_value(field("RatingValue")),
-            rating_key=field("RatingKey"),
+            rating_value=rating_value,
+            rating_key=rating_key,
             rating_date=rating_date,
             scheme_type=field("SchemeType") or "",
             new_rating_pending=parse_bool(field("NewRatingPending"), default=False),
