@@ -71,7 +71,7 @@ def import_authority(
     *,
     authorities: list[DiscoveryAuthority] | None = None,
     force: bool = False,
-    batch_size: int = 1000,
+    batch_size: int = 500,
     run_id: str | None = None,
     dry_run: bool = False,
     base_url: str = FSA_API_BASE_URL,
@@ -104,6 +104,11 @@ def import_authority(
     proxy_date = authority.last_published_date_only
     if is_unchanged(last_extract_date, proxy_date, force=force):
         result.skipped = True
+        # Close the implicit transaction the read above opened (autocommit
+        # is off) — otherwise a full run's common case (most authorities
+        # unchanged) leaves one read transaction open per skip, all the way
+        # until something else finally commits.
+        conn.commit()
         logger.info("import_authority.unchanged_proxy", code=code, extract_date=str(last_extract_date))
         return result
 
@@ -112,6 +117,7 @@ def import_authority(
     except httpx.HTTPError as exc:
         result.error = f"failed to download open-data file: {exc}"
         logger.error("import_authority.download_failed", code=code, error=str(exc))
+        conn.rollback()
         return result
 
     try:
@@ -121,15 +127,18 @@ def import_authority(
                 header = next(gen)
             except StopIteration:
                 result.error = "empty XML file"
+                conn.rollback()
                 return result
             except XmlParseError as exc:
                 result.error = f"malformed XML: {exc}"
                 logger.error("import_authority.malformed_xml", code=code, error=str(exc))
+                conn.rollback()
                 return result
             assert isinstance(header, XmlHeader)
 
             if is_unchanged(last_extract_date, header.extract_date, force=force):
                 result.skipped = True
+                conn.commit()
                 logger.info("import_authority.unchanged", code=code, extract_date=str(header.extract_date))
                 return result
 
@@ -158,6 +167,19 @@ def import_authority(
             for batch in _batched_records(records_gen, batch_size, result):
                 with conn.transaction():
                     batch_result = db.upsert_establishments_batch(conn, batch, run_id=run_id)
+                # Under autocommit=False, an earlier plain read (e.g.
+                # get_local_authority above) already left the connection
+                # inside an open implicit transaction, so `with
+                # conn.transaction():` here creates a SAVEPOINT, not a real
+                # commit — everything stays uncommitted, and thus entirely
+                # rollback-able by one later failure, until this explicit
+                # commit actually flushes it. This is what the module
+                # docstring's "each batch its own transaction" promise
+                # depends on; without it every authority in a run shares one
+                # unbounded transaction, which both defeats crash-safety and
+                # can exceed CockroachDB's per-transaction lock-tracking
+                # budget on a large authority file.
+                conn.commit()
                 result.rows_inserted += batch_result.inserted
                 result.rows_updated += batch_result.updated
                 result.rating_changes_created += len(batch_result.rating_changes)
@@ -165,13 +187,21 @@ def import_authority(
             with conn.transaction():
                 result.stale_marked = db.mark_stale(conn, code, header.extract_date)
                 db.update_local_authority_extract_date(conn, code, header.extract_date)
+            conn.commit()
     except XmlParseError as exc:
         result.error = f"malformed XML: {exc}"
         logger.error("import_authority.malformed_xml", code=code, error=str(exc))
+        conn.rollback()
         return result
     except Exception as exc:  # noqa: BLE001 - a single authority's failure must not crash the batch
         result.error = str(exc)
         logger.error("import_authority.failed", code=code, error=str(exc))
+        # Guarantee the connection is left clean (not INERROR/aborted) so
+        # import_all can safely continue with the next authority on the
+        # same connection — an in-flight batch's `with conn.transaction():`
+        # rolls back its own scope, but leaves nothing to be sure of beyond
+        # that without this.
+        conn.rollback()
         return result
 
     logger.info(
@@ -234,7 +264,7 @@ def import_all(
     base_url: str,
     force: bool = False,
     only_codes: list[str] | None = None,
-    batch_size: int = 1000,
+    batch_size: int = 500,
     run_id: str | None = None,
     dry_run: bool = False,
 ) -> ImportAllResult:

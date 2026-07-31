@@ -64,7 +64,7 @@ def discover(database_url: str | None = DatabaseUrlOption) -> None:
 def import_authority_cmd(
     code: str = typer.Argument(..., help="Local authority code, e.g. 197"),
     force: bool = typer.Option(False, "--force", help="Re-import even if extract date is unchanged."),
-    batch_size: int = typer.Option(1000, "--batch-size", min=1, max=10_000),
+    batch_size: int = typer.Option(500, "--batch-size", min=1, max=10_000),
     dry_run: bool = typer.Option(False, "--dry-run", help="Validate only; write nothing."),
     database_url: str | None = DatabaseUrlOption,
 ) -> None:
@@ -108,7 +108,7 @@ def import_all_cmd(
     authorities_opt: str | None = typer.Option(
         None, "--authorities", help="Comma-separated list of authority codes to restrict to."
     ),
-    batch_size: int = typer.Option(1000, "--batch-size", min=1, max=10_000),
+    batch_size: int = typer.Option(500, "--batch-size", min=1, max=10_000),
     dry_run: bool = typer.Option(False, "--dry-run"),
     database_url: str | None = DatabaseUrlOption,
 ) -> None:
@@ -302,7 +302,7 @@ def run(
     force: bool = typer.Option(False, "--force"),
     authorities_opt: str | None = typer.Option(None, "--authorities"),
     dry_run: bool = typer.Option(False, "--dry-run"),
-    batch_size: int = typer.Option(1000, "--batch-size", min=1, max=10_000),
+    batch_size: int = typer.Option(500, "--batch-size", min=1, max=10_000),
     database_url: str | None = DatabaseUrlOption,
 ) -> None:
     """Orchestration entrypoint for the scheduled GitHub Actions workflow:
