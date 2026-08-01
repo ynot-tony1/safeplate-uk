@@ -36,8 +36,13 @@ SELECT
     (SELECT count(*) FROM active WHERE rating_value IN ('0', '1', '2')) AS rated_0_to_2_count,
     (SELECT count(*) FROM active WHERE rating_value ILIKE 'awaiting%%') AS awaiting_count,
     (SELECT count(*) FROM active WHERE new_rating_pending = true) AS new_rating_pending_count,
+    -- A rolling 30-day window, not the calendar month — a calendar-month
+    -- bucket resets to ~0 every 1st of the month regardless of how much
+    -- real inspection activity there's been recently, which reads as
+    -- broken on the dashboard. The inspections_latest_month column name is
+    -- kept as-is to avoid a migration; only its meaning changed.
     (SELECT count(*) FROM active
-        WHERE date_trunc('month', rating_date) = date_trunc('month', %(as_of)s::date)
+        WHERE rating_date > %(as_of)s::date - INTERVAL '30 days' AND rating_date <= %(as_of)s::date
     ) AS inspections_latest_month,
     (SELECT count(*) FROM local_authorities WHERE last_extract_date IS NOT NULL) AS participating_authorities,
     (SELECT avg(%(as_of)s::date - rating_date)
@@ -70,7 +75,9 @@ SELECT
     count(*) FILTER (WHERE e.is_active AND e.rating_value ILIKE 'awaiting%%') AS awaiting_count,
     count(*) FILTER (WHERE e.is_active AND e.new_rating_pending = true) AS new_rating_pending_count,
     count(*) FILTER (
-        WHERE e.is_active AND date_trunc('month', e.rating_date) = date_trunc('month', %(as_of)s::date)
+        WHERE e.is_active
+          AND e.rating_date > %(as_of)s::date - INTERVAL '30 days'
+          AND e.rating_date <= %(as_of)s::date
     ) AS inspections_latest_month,
     avg(%(as_of)s::date - e.rating_date)
         FILTER (WHERE e.is_active AND e.rating_date IS NOT NULL) AS avg_days_since_inspection

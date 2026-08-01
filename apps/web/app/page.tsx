@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           tone="blue"
         />
         <StatTile
-          label="Inspections (latest month)"
+          label="Inspections (last 30 days)"
           value={formatNumber(data.inspectionsLatestMonth)}
           icon={ClipboardCheck}
           tone="aqua"
