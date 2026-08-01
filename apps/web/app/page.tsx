@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   BadgeCheck,
   Building2,
-  CalendarClock,
   ClipboardCheck,
   Hourglass,
   MapPinned,
@@ -20,7 +19,7 @@ import { LabeledBarChart } from "@/components/charts/labeled-bar-chart";
 import { InspectionsByMonthChart } from "@/components/charts/inspections-by-month-chart";
 import { RatingBySchemeChart } from "@/components/charts/rating-by-scheme-chart";
 import { getDashboardData } from "@/lib/data/dashboard";
-import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
+import { formatDate, formatNumber } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -58,9 +57,6 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Metrics computed {formatDate(data.metricDate)}
-          {data.sourceExtractDate && (
-            <> · source extract dated {formatDate(data.sourceExtractDate)}</>
-          )}
         </p>
       </div>
 
@@ -85,19 +81,6 @@ export default async function DashboardPage() {
           value={formatNumber(data.participatingAuthorities)}
           icon={MapPinned}
           tone="magenta"
-        />
-        <StatTile
-          label="Latest successful ingestion"
-          value={
-            data.latestSuccessfulRun ? formatDateTime(data.latestSuccessfulRun.completedAt) : "—"
-          }
-          icon={CalendarClock}
-          tone="orange"
-        />
-        <StatTile
-          label="Source extract date"
-          value={formatDate(data.sourceExtractDate)}
-          hint="as recorded across all currently-indexed establishments"
         />
       </section>
 
