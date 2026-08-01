@@ -19,7 +19,7 @@ import { LabeledBarChart } from "@/components/charts/labeled-bar-chart";
 import { InspectionsByMonthChart } from "@/components/charts/inspections-by-month-chart";
 import { RatingBySchemeChart } from "@/components/charts/rating-by-scheme-chart";
 import { getDashboardData } from "@/lib/data/dashboard";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -53,12 +53,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Metrics computed {formatDate(data.metricDate)}
-        </p>
-      </div>
+      <h1 className="sr-only">Dashboard</h1>
 
       <section
         aria-label="Key metrics"
