@@ -105,10 +105,9 @@ export default async function DashboardPage() {
         <div>
           <h2 className="text-sm font-semibold">Rating breakdown</h2>
           <p className="text-xs text-muted-foreground">
-            Every indexed establishment falls into exactly one of the first seven tiles below —
-            they sum to the total. &ldquo;New rating pending&rdquo; is shown separately since
-            it&rsquo;s a flag that can apply on top of any current rating, not a rating outcome of
-            its own.
+            Every indexed establishment falls into exactly one of the first seven tiles below — they
+            sum to the total. &ldquo;New rating pending&rdquo; is shown separately since it&rsquo;s
+            a flag that can apply on top of any current rating, not a rating outcome of its own.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
