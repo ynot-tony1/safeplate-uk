@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "SafePlate UK",
-    template: "%s — SafePlate UK",
+    template: "%s | SafePlate UK",
   },
   description:
     "Search and analyse UK Food Hygiene Rating Scheme (FHRS) and Food Hygiene Information Scheme (FHIS) data from the Food Standards Agency's open data.",

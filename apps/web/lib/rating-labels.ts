@@ -6,12 +6,12 @@ import { RATING_KEYS, type RatingKey } from "@safeplate/shared";
  * every rating badge/chart segment pairs a color with this text.
  */
 export const RATING_LABELS: Record<RatingKey, string> = {
-  "5": "5 — Very Good",
-  "4": "4 — Good",
-  "3": "3 — Generally Satisfactory",
-  "2": "2 — Improvement Necessary",
-  "1": "1 — Major Improvement Necessary",
-  "0": "0 — Urgent Improvement Necessary",
+  "5": "5: Very Good",
+  "4": "4: Good",
+  "3": "3: Generally Satisfactory",
+  "2": "2: Improvement Necessary",
+  "1": "1: Major Improvement Necessary",
+  "0": "0: Urgent Improvement Necessary",
   pass: "Pass",
   pass_and_eat_safe: "Pass and Eat Safe",
   improvement_required: "Improvement Required",

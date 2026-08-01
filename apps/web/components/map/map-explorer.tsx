@@ -116,7 +116,7 @@ export function MapExplorer({
           setMarkers([]);
           setTruncated(false);
           setError(
-            "Zoom in further to load establishments — the current area is too large to query.",
+            "Zoom in further to load establishments. The current area is too large to query.",
           );
           setPage(0);
           return;

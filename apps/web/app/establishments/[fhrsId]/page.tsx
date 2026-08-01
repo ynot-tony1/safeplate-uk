@@ -140,7 +140,7 @@ export default async function EstablishmentDetailPage({
                 attribution={ATTRIBUTION}
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                Coordinates as supplied by the local authority — not independently verified. See{" "}
+                Coordinates as supplied by the local authority, not independently verified. See{" "}
                 <Link href="/about/data" className="underline">
                   about the data
                 </Link>
@@ -171,8 +171,8 @@ export default async function EstablishmentDetailPage({
                     {ratingChanges.map((change) => (
                       <TableRow key={change.id}>
                         <TableCell>{formatDate(change.changedAt)}</TableCell>
-                        <TableCell>{change.previousRatingValue ?? "—"}</TableCell>
-                        <TableCell>{change.newRatingValue ?? "—"}</TableCell>
+                        <TableCell>{change.previousRatingValue ?? "-"}</TableCell>
+                        <TableCell>{change.newRatingValue ?? "-"}</TableCell>
                         <TableCell>{formatDate(change.previousRatingDate)}</TableCell>
                         <TableCell>{formatDate(change.newRatingDate)}</TableCell>
                       </TableRow>
@@ -195,9 +195,9 @@ export default async function EstablishmentDetailPage({
                 As recorded in the source extract dated{" "}
                 <strong className="text-foreground">
                   {formatDate(establishment.sourceExtractDate)}
-                </strong>{" "}
-                — may not reflect the current rating. Ratings are updated by local authorities and
-                re-synced by our nightly ingestion; check{" "}
+                </strong>
+                , this may not reflect the current rating. Ratings are updated by local authorities
+                and re-synced by our nightly ingestion; check{" "}
                 <Link
                   href={`https://ratings.food.gov.uk/`}
                   className="underline"

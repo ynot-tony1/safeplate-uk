@@ -24,9 +24,9 @@ import { formatNumber } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  // Hardcoded rather than "Dashboard" — the root "/" segment doesn't pick up
+  // Hardcoded rather than "Dashboard": the root "/" segment doesn't pick up
   // the layout's title.template the way every other route does.
-  title: "Dashboard — SafePlate UK",
+  title: "Dashboard | SafePlate UK",
   description: "Site-wide UK food hygiene rating statistics.",
 };
 
@@ -41,7 +41,7 @@ export default async function DashboardPage() {
           <Hourglass className="size-4" />
           <AlertTitle>No data yet</AlertTitle>
           <AlertDescription>
-            No daily metrics have been computed yet — this happens once the nightly ingestion
+            No daily metrics have been computed yet. This happens once the nightly ingestion
             pipeline has run at least once. Check the{" "}
             <Link className="underline" href="/status">
               status page
@@ -85,9 +85,10 @@ export default async function DashboardPage() {
         <div>
           <h2 className="text-sm font-semibold">Rating breakdown</h2>
           <p className="text-xs text-muted-foreground">
-            Every indexed establishment falls into exactly one of the first seven tiles below — they
-            sum to the total. &ldquo;New rating pending&rdquo; is shown separately since it&rsquo;s
-            a flag that can apply on top of any current rating, not a rating outcome of its own.
+            Every indexed establishment falls into exactly one of the first seven tiles below, and
+            they sum to the total. &ldquo;New rating pending&rdquo; is shown separately since
+            it&rsquo;s a flag that can apply on top of any current rating, not a rating outcome of
+            its own.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -98,13 +99,13 @@ export default async function DashboardPage() {
             tone="good"
           />
           <StatTile
-            label="Rated 3–4"
+            label="Rated 3-4"
             value={formatNumber(data.rated3to4Count)}
             icon={Shield}
             tone="warning"
           />
           <StatTile
-            label="Rated 0–2"
+            label="Rated 0-2"
             value={formatNumber(data.rated0to2Count)}
             icon={ShieldX}
             tone="critical"
@@ -139,7 +140,7 @@ export default async function DashboardPage() {
             value={formatNumber(data.newRatingPendingCount)}
             icon={Hourglass}
             tone="amber"
-            hint="overlaps with the tiles above — not part of the total"
+            hint="overlaps with the tiles above, not part of the total"
           />
         </div>
       </section>
@@ -154,7 +155,7 @@ export default async function DashboardPage() {
         />
         <InspectionsByMonthChart data={data.inspectionsByMonth} />
         <LabeledBarChart
-          title="Highest proportion rated 0–2"
+          title="Highest proportion rated 0-2"
           description="Top 10 local authorities by share of poorly-rated establishments"
           data={data.worstAuthorities.map((a) => ({ label: a.name, value: a.proportion }))}
           valueFormat="percent"

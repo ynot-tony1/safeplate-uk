@@ -62,7 +62,7 @@ export default async function StatusPage() {
         <div className="rounded-lg border bg-card p-4">
           <h2 className="text-xs font-medium text-muted-foreground">Health check</h2>
           <p className="mt-1 text-sm">
-            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">GET /api/health</code> — a fast
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">GET /api/health</code>, a fast
             database connectivity check, returned as JSON.
           </p>
         </div>
@@ -120,7 +120,7 @@ export default async function StatusPage() {
                         {formatNumber(run.ratingChangesCreated)}
                       </TableCell>
                       <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
-                        {run.errorSummary ?? "—"}
+                        {run.errorSummary ?? "-"}
                       </TableCell>
                     </TableRow>
                   );

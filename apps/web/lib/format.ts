@@ -13,30 +13,30 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 export function formatNumber(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—";
+  if (value == null || Number.isNaN(value)) return "-";
   return numberFormatter.format(value);
 }
 
 export function formatDate(value: Date | string | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = typeof value === "string" ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return dateFormatter.format(date);
 }
 
 export function formatDateTime(value: Date | string | null | undefined): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = typeof value === "string" ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return dateTimeFormatter.format(date);
 }
 
 export function formatPercent(value: number | null | undefined, digits = 1): string {
-  if (value == null || Number.isNaN(value)) return "—";
+  if (value == null || Number.isNaN(value)) return "-";
   return `${(value * 100).toFixed(digits)}%`;
 }
 
 export function formatDays(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—";
+  if (value == null || Number.isNaN(value)) return "-";
   return `${value.toFixed(0)} days`;
 }

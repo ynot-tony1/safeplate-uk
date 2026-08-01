@@ -54,7 +54,7 @@ export default async function LocalAuthoritiesPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Rated 0–2</dt>
+                  <dt className="text-xs text-muted-foreground">Rated 0-2</dt>
                   <dd className="font-medium tabular-nums">
                     {formatPercent(la.proportionRated0to2)} ({formatNumber(la.rated0to2Count)})
                   </dd>

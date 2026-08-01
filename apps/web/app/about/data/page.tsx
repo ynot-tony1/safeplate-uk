@@ -33,8 +33,8 @@ export default function AboutDataPage() {
         >
           FHRS/FHIS open data service
         </a>
-        . We do not collect, verify, or independently inspect any establishment ourselves —
-        everything shown here is a re-presentation of the FSA&apos;s published records.
+        . We do not collect, verify, or independently inspect any establishment ourselves.
+        Everything shown here is a re-presentation of the FSA&apos;s published records.
       </p>
 
       <h2 className={h2Class}>FHRS vs FHIS</h2>
@@ -58,7 +58,7 @@ export default function AboutDataPage() {
         <strong className="text-foreground">Exempt</strong>,{" "}
         <strong className="text-foreground">Awaiting Inspection</strong>, or{" "}
         <strong className="text-foreground">Awaiting Publication</strong> rather than a scored
-        rating — this is normal and does not necessarily indicate a problem.
+        rating. This is normal and does not necessarily indicate a problem.
       </p>
 
       <h2 className={h2Class}>How the data gets here</h2>
@@ -66,8 +66,8 @@ export default function AboutDataPage() {
         A scheduled GitHub Actions workflow runs nightly, downloading each participating local
         authority&apos;s published FHRS/FHIS XML open-data file directly from the FSA, and importing
         any new or changed establishment records. We only write a rating-history entry when a
-        rating, rating date, score, or pending-rating status actually changes between two imports —
-        not on every import — so the history you see reflects real changes over time, not noise from
+        rating, rating date, score, or pending-rating status actually changes between two imports,
+        not on every import, so the history you see reflects real changes over time, not noise from
         re-publishing identical data.
       </p>
 
@@ -76,10 +76,10 @@ export default function AboutDataPage() {
         A rating date is{" "}
         <strong className="text-foreground">
           the date of the inspection that produced that rating
-        </strong>{" "}
-        — it is not a guarantee of current freshness. A business can maintain the same rating for
-        years without a new inspection, or standards may have changed since the date shown. Always
-        check the <strong className="text-foreground">source extract date</strong> shown on each
+        </strong>
+        , not a guarantee of current freshness. A business can maintain the same rating for years
+        without a new inspection, or standards may have changed since the date shown. Always check
+        the <strong className="text-foreground">source extract date</strong> shown on each
         establishment&apos;s page, which tells you how current our copy of the local
         authority&apos;s data is.
       </p>
@@ -88,7 +88,7 @@ export default function AboutDataPage() {
       <p className={pClass}>
         Latitude/longitude coordinates, where present, are supplied by the local authority as part
         of the open data extract. We do not independently verify or geocode these coordinates
-        ourselves — some establishments may have imprecise, missing, or occasionally incorrect
+        ourselves. Some establishments may have imprecise, missing, or occasionally incorrect
         coordinates as published by the source.
       </p>
 
@@ -99,13 +99,13 @@ export default function AboutDataPage() {
         </li>
         <li>Ratings can lag real-world conditions by months between inspections.</li>
         <li>
-          Business names, addresses, and types are exactly as published — we do not correct
-          spelling, deduplicate near-identical entries, or infer closures beyond what the source
-          data indicates.
+          Business names, addresses, and types are exactly as published. We do not correct spelling,
+          deduplicate near-identical entries, or infer closures beyond what the source data
+          indicates.
         </li>
         <li>
           This is an independent portfolio project, not an official FSA product, and should not be
-          relied upon as the sole basis for a food safety decision — always consult the{" "}
+          relied upon as the sole basis for a food safety decision. Always consult the{" "}
           <a
             className={linkClass}
             href="https://ratings.food.gov.uk/"
