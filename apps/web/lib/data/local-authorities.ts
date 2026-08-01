@@ -1,6 +1,5 @@
 import "server-only";
-import { RATING_KEYS } from "@safeplate/shared";
-import { ratingLabel } from "../rating-labels";
+import { ratingDistributionFromRecord } from "../rating-labels";
 import { asNumberRecord, getLatestPerAuthorityMetrics } from "./daily-metrics";
 
 export interface LocalAuthoritySummary {
@@ -45,11 +44,7 @@ export async function getLocalAuthoritySummaries(): Promise<LocalAuthoritySummar
         businessTypeMix: Object.entries(businessRecord)
           .map(([label, count]) => ({ label, count }))
           .sort((a, b) => b.count - a.count),
-        ratingDistribution: RATING_KEYS.filter((key) => key in ratingRecord).map((key) => ({
-          key,
-          label: ratingLabel(key),
-          count: ratingRecord[key] ?? 0,
-        })),
+        ratingDistribution: ratingDistributionFromRecord(ratingRecord),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));

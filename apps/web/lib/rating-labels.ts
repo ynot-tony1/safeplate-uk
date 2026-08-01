@@ -1,4 +1,4 @@
-import type { RatingKey } from "@safeplate/shared";
+import { RATING_KEYS, type RatingKey } from "@safeplate/shared";
 
 /**
  * Human-readable labels and severity bucket for each ratingKey. Used
@@ -46,4 +46,35 @@ export function ratingSeverity(key: string | null | undefined): RatingSeverity {
 export function ratingLabel(key: string | null | undefined): string {
   if (!key) return "Not yet rated";
   return RATING_LABELS[key as RatingKey] ?? key;
+}
+
+export interface RatingDistributionDatum {
+  key: string;
+  label: string;
+  count: number;
+}
+
+/**
+ * Converts a raw {ratingKey: count} record (the ingestor's rating_distribution
+ * aggregate, grouped by the normalised `rating_key` column) into a full
+ * ordered breakdown. Includes establishments with no parseable rating under
+ * the "unrated" sentinel key the ingestor writes for a null rating_key, so
+ * every indexed establishment is accounted for somewhere in the chart rather
+ * than silently dropped for not matching a known ratingKey.
+ */
+export function ratingDistributionFromRecord(
+  record: Record<string, number>,
+): RatingDistributionDatum[] {
+  const known: RatingDistributionDatum[] = RATING_KEYS.filter((key) => key in record).map(
+    (key) => ({
+      key,
+      label: ratingLabel(key),
+      count: record[key] ?? 0,
+    }),
+  );
+  const unrated = record.unrated;
+  if (unrated) {
+    known.push({ key: "unrated", label: "Not yet rated", count: unrated });
+  }
+  return known;
 }

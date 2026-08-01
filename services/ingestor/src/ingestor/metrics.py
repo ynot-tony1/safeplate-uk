@@ -46,9 +46,9 @@ SELECT
         FROM (SELECT business_type_name, count(*) AS cnt FROM active
               GROUP BY business_type_name) t
     ) AS business_type_mix,
-    (SELECT jsonb_object_agg(coalesce(rating_value, 'Unknown'), cnt)
-        FROM (SELECT rating_value, count(*) AS cnt FROM active
-              GROUP BY rating_value) t
+    (SELECT jsonb_object_agg(coalesce(rating_key, 'unrated'), cnt)
+        FROM (SELECT rating_key, count(*) AS cnt FROM active
+              GROUP BY rating_key) t
     ) AS rating_distribution,
     (SELECT jsonb_object_agg(month_key, cnt)
         FROM (
@@ -90,11 +90,11 @@ GROUP BY local_authority_code
 """
 
 _PER_AUTHORITY_RATING_DISTRIBUTION_SQL = """
-SELECT local_authority_code, jsonb_object_agg(coalesce(rating_value, 'Unknown'), cnt) AS dist
+SELECT local_authority_code, jsonb_object_agg(coalesce(rating_key, 'unrated'), cnt) AS dist
 FROM (
-    SELECT local_authority_code, rating_value, count(*) AS cnt
+    SELECT local_authority_code, rating_key, count(*) AS cnt
     FROM establishments WHERE is_active = true
-    GROUP BY local_authority_code, rating_value
+    GROUP BY local_authority_code, rating_key
 ) t
 GROUP BY local_authority_code
 """

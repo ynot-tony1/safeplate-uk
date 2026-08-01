@@ -10,6 +10,8 @@ const TONE_VAR: Record<string, string> = {
   orange: "--chart-cat-6",
   good: "--chart-good",
   critical: "--chart-critical",
+  warning: "--chart-warning",
+  neutral: "--chart-ink-muted",
 };
 
 export type StatTileTone = keyof typeof TONE_VAR;

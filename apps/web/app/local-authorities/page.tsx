@@ -79,6 +79,22 @@ export default async function LocalAuthoritiesPage() {
                 </div>
               </dl>
 
+              {la.ratingDistribution.length > 0 && (
+                <details className="mt-3 text-sm">
+                  <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+                    Full rating breakdown
+                  </summary>
+                  <ul className="mt-2 space-y-1">
+                    {la.ratingDistribution.map((r) => (
+                      <li key={r.key} className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{r.label}</span>
+                        <span className="tabular-nums">{formatNumber(r.count)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+
               {la.businessTypeMix.length > 0 && (
                 <details className="mt-3 text-sm">
                   <summary className="cursor-pointer text-xs font-medium text-muted-foreground">

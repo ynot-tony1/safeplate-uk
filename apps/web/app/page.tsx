@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  BadgeCheck,
   Building2,
   CalendarClock,
   ClipboardCheck,
   Hourglass,
   MapPinned,
+  Shield,
+  ShieldAlert,
   ShieldCheck,
+  ShieldQuestion,
   ShieldX,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -71,24 +75,6 @@ export default async function DashboardPage() {
           tone="blue"
         />
         <StatTile
-          label="Rated 5"
-          value={formatNumber(data.rated5Count)}
-          icon={ShieldCheck}
-          tone="good"
-        />
-        <StatTile
-          label="Rated 0–2"
-          value={formatNumber(data.rated0to2Count)}
-          icon={ShieldX}
-          tone="critical"
-        />
-        <StatTile
-          label="Awaiting / new rating pending"
-          value={formatNumber(data.awaitingCount + data.newRatingPendingCount)}
-          icon={Hourglass}
-          tone="amber"
-        />
-        <StatTile
           label="Inspections (latest month)"
           value={formatNumber(data.inspectionsLatestMonth)}
           icon={ClipboardCheck}
@@ -113,6 +99,70 @@ export default async function DashboardPage() {
           value={formatDate(data.sourceExtractDate)}
           hint="as recorded across all currently-indexed establishments"
         />
+      </section>
+
+      <section aria-label="Rating breakdown" className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold">Rating breakdown</h2>
+          <p className="text-xs text-muted-foreground">
+            Every indexed establishment falls into exactly one of the first seven tiles below —
+            they sum to the total. &ldquo;New rating pending&rdquo; is shown separately since
+            it&rsquo;s a flag that can apply on top of any current rating, not a rating outcome of
+            its own.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <StatTile
+            label="Rated 5"
+            value={formatNumber(data.rated5Count)}
+            icon={ShieldCheck}
+            tone="good"
+          />
+          <StatTile
+            label="Rated 3–4"
+            value={formatNumber(data.rated3to4Count)}
+            icon={Shield}
+            tone="warning"
+          />
+          <StatTile
+            label="Rated 0–2"
+            value={formatNumber(data.rated0to2Count)}
+            icon={ShieldX}
+            tone="critical"
+          />
+          <StatTile
+            label="Pass (FHIS)"
+            value={formatNumber(data.fhisPassCount)}
+            icon={BadgeCheck}
+            tone="good"
+            hint="Scotland's Pass / Pass and Eat Safe outcomes"
+          />
+          <StatTile
+            label="Improvement required (FHIS)"
+            value={formatNumber(data.improvementRequiredCount)}
+            icon={ShieldAlert}
+            tone="critical"
+          />
+          <StatTile
+            label="Awaiting inspection / publication"
+            value={formatNumber(data.awaitingCount)}
+            icon={Hourglass}
+            tone="amber"
+          />
+          <StatTile
+            label="Exempt / not yet rated"
+            value={formatNumber(data.exemptOrUnratedCount)}
+            icon={ShieldQuestion}
+            tone="neutral"
+          />
+          <StatTile
+            label="New rating pending"
+            value={formatNumber(data.newRatingPendingCount)}
+            icon={Hourglass}
+            tone="amber"
+            hint="overlaps with the tiles above — not part of the total"
+          />
+        </div>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2" aria-label="Charts">

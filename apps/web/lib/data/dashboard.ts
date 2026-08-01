@@ -1,8 +1,7 @@
 import "server-only";
 import { prisma } from "@safeplate/database";
 import type { IngestionRun } from "@safeplate/database";
-import { RATING_KEYS } from "@safeplate/shared";
-import { ratingLabel } from "../rating-labels";
+import { ratingLabel, ratingDistributionFromRecord } from "../rating-labels";
 import {
   asNumberRecord,
   getLatestGlobalMetric,
@@ -50,8 +49,12 @@ export interface DashboardData {
   metricDate: Date | null;
   totalEstablishments: number;
   rated5Count: number;
+  rated3to4Count: number;
   rated0to2Count: number;
+  fhisPassCount: number;
+  improvementRequiredCount: number;
   awaitingCount: number;
+  exemptOrUnratedCount: number;
   newRatingPendingCount: number;
   inspectionsLatestMonth: number;
   participatingAuthorities: number;
@@ -66,13 +69,8 @@ export interface DashboardData {
   leastRecentlyInspectedAuthorities: AuthorityRecency[];
 }
 
-function toRatingData(json: unknown): RatingDatum[] {
-  const record = asNumberRecord(json);
-  return RATING_KEYS.filter((key) => key in record).map((key) => ({
-    key,
-    label: ratingLabel(key),
-    count: record[key] ?? 0,
-  }));
+function sumKeys(record: Record<string, number>, keys: string[]): number {
+  return keys.reduce((total, key) => total + (record[key] ?? 0), 0);
 }
 
 function toLabeledCounts(json: unknown): LabeledCount[] {
@@ -141,6 +139,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     .sort((a, b) => b.avgDays - a.avgDays)
     .slice(0, 10);
 
+  const ratingRecord = asNumberRecord(globalMetric?.ratingDistribution);
+
   const ratingByScheme: RatingByScheme[] = schemeRatingGroups
     .filter((g) => g.ratingKey != null)
     .map((g) => ({
@@ -154,15 +154,25 @@ export async function getDashboardData(): Promise<DashboardData> {
     hasMetrics: globalMetric != null,
     metricDate: globalMetric?.metricDate ?? null,
     totalEstablishments: globalMetric?.totalEstablishments ?? 0,
-    rated5Count: globalMetric?.rated5Count ?? 0,
-    rated0to2Count: globalMetric?.rated0to2Count ?? 0,
-    awaitingCount: globalMetric?.awaitingCount ?? 0,
+    // All seven "Rating breakdown" tiles below are derived from the same
+    // rating_key-keyed ratingRecord (rather than mixing in the separately
+    // computed rated5Count/rated0to2Count/awaitingCount DailyMetric columns,
+    // which are matched on raw rating_value text) so the tiles are
+    // guaranteed to sum to totalEstablishments by construction, not by two
+    // independently-computed aggregates happening to agree.
+    rated5Count: sumKeys(ratingRecord, ["5"]),
+    rated3to4Count: sumKeys(ratingRecord, ["3", "4"]),
+    rated0to2Count: sumKeys(ratingRecord, ["0", "1", "2"]),
+    fhisPassCount: sumKeys(ratingRecord, ["pass", "pass_and_eat_safe"]),
+    improvementRequiredCount: sumKeys(ratingRecord, ["improvement_required"]),
+    awaitingCount: sumKeys(ratingRecord, ["awaiting_inspection", "awaiting_publication"]),
+    exemptOrUnratedCount: sumKeys(ratingRecord, ["exempt", "unrated"]),
     newRatingPendingCount: globalMetric?.newRatingPendingCount ?? 0,
     inspectionsLatestMonth: globalMetric?.inspectionsLatestMonth ?? 0,
     participatingAuthorities: globalMetric?.participatingAuthorities ?? 0,
     latestSuccessfulRun,
     sourceExtractDate: extractAgg._max.sourceExtractDate,
-    ratingDistribution: toRatingData(globalMetric?.ratingDistribution),
+    ratingDistribution: ratingDistributionFromRecord(ratingRecord),
     businessTypeMix: toLabeledCounts(globalMetric?.businessTypeMix),
     inspectionsByMonth: toMonthlyCounts(globalMetric?.inspectionsByMonth),
     ratingByScheme,
