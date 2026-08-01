@@ -24,7 +24,9 @@ import { formatNumber } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  // Hardcoded rather than "Dashboard" — the root "/" segment doesn't pick up
+  // the layout's title.template the way every other route does.
+  title: "Dashboard — SafePlate UK",
   description: "Site-wide UK food hygiene rating statistics.",
 };
 
